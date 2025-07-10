@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/components/Header.jsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752167595911,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752167595911,
+            "name": "Commit-0",
+            "content": "export default function Header() {\r\n  return (\r\n    <header className=\"app-header\">\r\n      <h1>UrbanFlow</h1>\r\n      <p>All-Powered Urban Transport & Food Marketplace</p>\r\n    </header>\r\n  );\r\n}"
+        }
+    ]
+}

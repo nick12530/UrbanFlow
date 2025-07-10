@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/components/TransportPlanner.jsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752169229496,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752169229496,
+            "name": "Commit-0",
+            "content": "import { useState } from 'react';\r\n\r\nexport default function TransportPlanner({ onSearch }) {\r\n  const [origin, setOrigin] = useState('');\r\n  const [destination, setDestination] = useState('');\r\n\r\n  const handleSubmit = (e) => {\r\n    e.preventDefault();\r\n    if (origin && destination) {\r\n      onSearch(origin, destination);\r\n    }\r\n  };\r\n\r\n  return (\r\n    <form onSubmit={handleSubmit} className=\"card\">\r\n      <div className=\"form-group\">\r\n        <label htmlFor=\"origin\">From</label>\r\n        <input\r\n          type=\"text\"\r\n          id=\"origin\"\r\n          value={origin}\r\n          onChange={(e) => setOrigin(e.target.value)}\r\n          placeholder=\"Enter starting point\"\r\n          required\r\n        />\r\n      </div>\r\n      \r\n      <div className=\"form-group\">\r\n        <label htmlFor=\"destination\">To</label>\r\n        <input\r\n          type=\"text\"\r\n          id=\"destination\"\r\n          value={destination}\r\n          onChange={(e) => setDestination(e.target.value)}\r\n          placeholder=\"Enter destination\"\r\n          required\r\n        />\r\n      </div>\r\n      \r\n      <button type=\"submit\" className=\"btn btn-primary\">\r\n        Find Routes\r\n      </button>\r\n    </form>\r\n  );\r\n}"
+        }
+    ]
+}

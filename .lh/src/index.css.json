@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/index.css",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752167112787,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752167112787,
+            "name": "Commit-0",
+            "content": "body {\n  margin: 0;\n  font-family: Arial, sans-serif;\n  padding: 20px;\n}\n\n.app {\n  max-width: 800px;\n  margin: 0 auto;\n}\n\na {\n  color: #0066cc;\n  text-decoration: none;\n}\n\na:hover {\n  text-decoration: underline;\n}"
+        }
+    ]
+}

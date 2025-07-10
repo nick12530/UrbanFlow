@@ -1,0 +1,34 @@
+{
+    "sourceFile": "src/App.jsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 4,
+            "patches": [
+                {
+                    "date": 1752166996960,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752168139260,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,22 +1,20 @@\n-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';\n-import Home from './pages/Home';\n-import Transport from './pages/Transport';\n-import Food from './pages/Food';\n-import Navbar from './components/Navbar';\n+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'\n+import Home from './pages/Home'\n+import Transport from './pages/Transport'\n+import Food from './pages/Food'\n+import Navbar from './components/Navbar'\n \n function App() {\n   return (\n     <Router>\n-      <div className=\"app\">\n-        <Navbar />\n-        <Routes>\n-          <Route path=\"/\" element={<Home />} />\n-          <Route path=\"/transport\" element={<Transport />} />\n-          <Route path=\"/food\" element={<Food />} />\n-        </Routes>\n-      </div>\n\\ No newline at end of file\n+      <Navbar />\n+      <Routes>\n+        <Route path=\"/\" element={<Home />} />\n+        <Route path=\"/transport\" element={<Transport />} />\n+        <Route path=\"/food\" element={<Food />} />\n+      </Routes>\n     </Router>\n-  );\n+  )\n }\n \n-export default App;\n+export default App\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1752174001951,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,9 +2,9 @@\n import Home from './pages/Home'\n import Transport from './pages/Transport'\n import Food from './pages/Food'\n import Navbar from './components/Navbar'\n-\n+import 'leaflet/dist/leaflet.css';\n function App() {\n   return (\n     <Router>\n       <Navbar />\n"
+                },
+                {
+                    "date": 1752174147415,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,9 +2,9 @@\n import Home from './pages/Home'\n import Transport from './pages/Transport'\n import Food from './pages/Food'\n import Navbar from './components/Navbar'\n-import 'leaflet/dist/leaflet.css';\n+\n function App() {\n   return (\n     <Router>\n       <Navbar />\n"
+                },
+                {
+                    "date": 1752175860227,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,8 +3,9 @@\n import Transport from './pages/Transport'\n import Food from './pages/Food'\n import Navbar from './components/Navbar'\n \n+\n function App() {\n   return (\n     <Router>\n       <Navbar />\n"
+                }
+            ],
+            "date": 1752166996960,
+            "name": "Commit-0",
+            "content": "import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';\nimport Home from './pages/Home';\nimport Transport from './pages/Transport';\nimport Food from './pages/Food';\nimport Navbar from './components/Navbar';\n\nfunction App() {\n  return (\n    <Router>\n      <div className=\"app\">\n        <Navbar />\n        <Routes>\n          <Route path=\"/\" element={<Home />} />\n          <Route path=\"/transport\" element={<Transport />} />\n          <Route path=\"/food\" element={<Food />} />\n        </Routes>\n      </div>\n    </Router>\n  );\n}\n\nexport default App;"
+        }
+    ]
+}

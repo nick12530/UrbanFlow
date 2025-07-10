@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/components/TransportOptions.jsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752166253328,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752166253328,
+            "name": "Commit-0",
+            "content": "import { useState } from 'react';\r\nimport { Tabs, Tab, Box, Typography } from '@mui/material';\r\nimport RouteCard from './RouteCard';\r\n\r\nexport default function TransportOptions({ routes, origin, destination }) {\r\n  const [tabValue, setTabValue] = useState('all');\r\n  \r\n  const filteredRoutes = tabValue === 'all' \r\n    ? routes \r\n    : routes.filter(route => route.type === tabValue);\r\n\r\n  return (\r\n    <Box>\r\n      <Tabs \r\n        value={tabValue}\r\n        onChange={(e, newValue) => setTabValue(newValue)}\r\n        variant=\"scrollable\"\r\n        scrollButtons=\"auto\"\r\n      >\r\n        <Tab label=\"All\" value=\"all\" />\r\n        <Tab label=\"Bus\" value=\"bus\" />\r\n        <Tab label=\"Walking\" value=\"walking\" />\r\n        <Tab label=\"Bike\" value=\"bike\" />\r\n        <Tab label=\"Car\" value=\"car\" />\r\n      </Tabs>\r\n      \r\n      <Box sx={{ mt: 2 }}>\r\n        {filteredRoutes.length > 0 ? (\r\n          filteredRoutes.map(route => (\r\n            <RouteCard key={route.id} route={route} />\r\n          ))\r\n        ) : (\r\n          <Typography>No routes found for your selection</Typography>\r\n        )}\r\n      </Box>\r\n    </Box>\r\n  );\r\n}"
+        }
+    ]
+}

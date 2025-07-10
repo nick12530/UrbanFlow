@@ -1,0 +1,34 @@
+{
+    "sourceFile": "src/components/Navbar.jsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 4,
+            "patches": [
+                {
+                    "date": 1752166187459,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752167027604,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,37 +1,17 @@\n import { Link } from 'react-router-dom';\r\n-import { BottomNavigation, BottomNavigationAction } from '@mui/material';\r\n-import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';\r\n-import RestaurantIcon from '@mui/icons-material/Restaurant';\r\n-import LocalBarIcon from '@mui/icons-material/LocalBar';\r\n-import HandymanIcon from '@mui/icons-material/Handyman';\r\n \r\n export default function Navbar() {\r\n   return (\r\n-    <BottomNavigation showLabels>\r\n-      <BottomNavigationAction \r\n-        label=\"Transport\" \r\n-        icon={<DirectionsBusIcon />} \r\n-        component={Link} \r\n-        to=\"/transport\" \r\n-      />\r\n-      <BottomNavigationAction \r\n-        label=\"Food\" \r\n-        icon={<RestaurantIcon />} \r\n-        component={Link} \r\n-        to=\"/food\" \r\n-      />\r\n-      <BottomNavigationAction \r\n-        label=\"Drinks\" \r\n-        icon={<LocalBarIcon />} \r\n-        component={Link} \r\n-        to=\"/food\" \r\n-      />\r\n-      <BottomNavigationAction \r\n-        label=\"Services\" \r\n-        icon={<HandymanIcon />} \r\n-        component={Link} \r\n-        to=\"/food\" \r\n-      />\r\n-    </BottomNavigation>\r\n+    <nav style={{\r\n+      display: 'flex',\r\n+      gap: '20px',\r\n+      padding: '15px',\r\n+      background: '#f0f0f0',\r\n+      marginBottom: '20px'\r\n+    }}>\r\n+      <Link to=\"/\">Home</Link>\r\n+      <Link to=\"/transport\">Transport</Link>\r\n+      <Link to=\"/food\">Food</Link>\r\n+    </nav>\r\n   );\r\n }\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1752167620102,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,17 +1,12 @@\n-import { Link } from 'react-router-dom';\r\n+import { NavLink } from 'react-router-dom';\r\n+import '../styles/main.css';\r\n \r\n export default function Navbar() {\r\n   return (\r\n-    <nav style={{\r\n-      display: 'flex',\r\n-      gap: '20px',\r\n-      padding: '15px',\r\n-      background: '#f0f0f0',\r\n-      marginBottom: '20px'\r\n-    }}>\r\n-      <Link to=\"/\">Home</Link>\r\n-      <Link to=\"/transport\">Transport</Link>\r\n-      <Link to=\"/food\">Food</Link>\r\n+    <nav className=\"main-nav\">\r\n+      <NavLink to=\"/\" end>Home</NavLink>\r\n+      <NavLink to=\"/transport\">Transport</NavLink>\r\n+      <NavLink to=\"/food\">Food</NavLink>\r\n     </nav>\r\n   );\r\n }\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1752168159298,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,12 +1,11 @@\n-import { NavLink } from 'react-router-dom';\r\n-import '../styles/main.css';\r\n+import { Link } from 'react-router-dom'\r\n \r\n export default function Navbar() {\r\n   return (\r\n-    <nav className=\"main-nav\">\r\n-      <NavLink to=\"/\" end>Home</NavLink>\r\n-      <NavLink to=\"/transport\">Transport</NavLink>\r\n-      <NavLink to=\"/food\">Food</NavLink>\r\n+    <nav style={{ padding: '1rem', background: '#eee' }}>\r\n+      <Link to=\"/\" style={{ marginRight: '1rem' }}>Home</Link>\r\n+      <Link to=\"/transport\" style={{ marginRight: '1rem' }}>Transport</Link>\r\n+      <Link to=\"/food\">Food</Link>\r\n     </nav>\r\n-  );\r\n+  )\r\n }\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1752168658040,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,11 @@\n-import { Link } from 'react-router-dom'\r\n+import { NavLink } from 'react-router-dom';\r\n \r\n export default function Navbar() {\r\n   return (\r\n-    <nav style={{ padding: '1rem', background: '#eee' }}>\r\n-      <Link to=\"/\" style={{ marginRight: '1rem' }}>Home</Link>\r\n-      <Link to=\"/transport\" style={{ marginRight: '1rem' }}>Transport</Link>\r\n-      <Link to=\"/food\">Food</Link>\r\n+    <nav className=\"main-nav\">\r\n+      <NavLink to=\"/\">Home</NavLink>\r\n+      <NavLink to=\"/transport\">Transport</NavLink>\r\n+      <NavLink to=\"/food\">Food</NavLink>\r\n     </nav>\r\n-  )\r\n+  );\r\n }\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1752166187459,
+            "name": "Commit-0",
+            "content": "import { Link } from 'react-router-dom';\r\nimport { BottomNavigation, BottomNavigationAction } from '@mui/material';\r\nimport DirectionsBusIcon from '@mui/icons-material/DirectionsBus';\r\nimport RestaurantIcon from '@mui/icons-material/Restaurant';\r\nimport LocalBarIcon from '@mui/icons-material/LocalBar';\r\nimport HandymanIcon from '@mui/icons-material/Handyman';\r\n\r\nexport default function Navbar() {\r\n  return (\r\n    <BottomNavigation showLabels>\r\n      <BottomNavigationAction \r\n        label=\"Transport\" \r\n        icon={<DirectionsBusIcon />} \r\n        component={Link} \r\n        to=\"/transport\" \r\n      />\r\n      <BottomNavigationAction \r\n        label=\"Food\" \r\n        icon={<RestaurantIcon />} \r\n        component={Link} \r\n        to=\"/food\" \r\n      />\r\n      <BottomNavigationAction \r\n        label=\"Drinks\" \r\n        icon={<LocalBarIcon />} \r\n        component={Link} \r\n        to=\"/food\" \r\n      />\r\n      <BottomNavigationAction \r\n        label=\"Services\" \r\n        icon={<HandymanIcon />} \r\n        component={Link} \r\n        to=\"/food\" \r\n      />\r\n    </BottomNavigation>\r\n  );\r\n}"
+        }
+    ]
+}

@@ -1,0 +1,165 @@
+/* src/styles/TransportPage.css */
+
+/* Core Layout - Will override any conflicts */
+.transport-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Services Section - Will definitely show */
+.transport-services-section {
+  margin: 3rem 0;
+  padding-top: 2rem;
+  border-top: 2px solid #eaeaea;
+}
+
+.transport-services-title {
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #2d3748;
+}
+
+.services-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.service-card-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.service-card-item:hover {
+  transform: translateY(-0.25rem);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+.service-icon-wrapper {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+}
+
+.service-name-heading {
+  font-size: 1.25rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #1a202c;
+}
+
+.service-description-text {
+  text-align: center;
+  color: #4a5568;
+  margin-bottom: 1rem;
+}
+
+.service-price-tag {
+  display: inline-block;
+  background: #f0fff4;
+  color: #2f855a;
+  padding: 0.25rem 1rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  margin: 0 auto 1rem;
+}
+
+.service-features-list {
+  margin: 1.5rem 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.service-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #4a5568;
+}
+
+.service-action-button {
+  width: 100%;
+  background: #4299e1;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.service-action-button:hover {
+  background: #3182ce;
+}
+
+/* Map Modal */
+.map-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.map-modal-content {
+  background: white;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 800px;
+  overflow: hidden;
+}
+
+.map-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.map-modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.map-close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #718096;
+  cursor: pointer;
+}
+
+.map-placeholder {
+  height: 500px;
+  background: #f7fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #718096;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .services-grid-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .map-placeholder {
+    height: 300px;
+  }
+}
