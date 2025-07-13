@@ -1,490 +1,1068 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { 
+  FiSearch, FiStar, FiPhone, FiClock, FiNavigation, 
+  FiMap, FiPlus, FiMinus, FiUser, FiCalendar, FiCreditCard 
+} from 'react-icons/fi';
+import { 
+  FaBus, FaTaxi, FaSchool, FaHospital, FaTrain, 
+  FaSubway, FaBicycle, FaClinicMedical, FaUniversity 
+} from 'react-icons/fa';
+import { MdLocalPharmacy, MdRestaurant, MdShoppingCart } from 'react-icons/md';
 
-// Mock TransportPlanner component
-function TransportPlanner({ onSearch }) {
-  const [origin, setOrigin] = useState('');
-  const [destination, setDestination] = useState('');
+// Fix for Leaflet marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
 
-  const handleSubmit = () => {
-    if (origin && destination) {
-      onSearch(origin, destination);
+// Nairobi coordinates
+const NAIROBI_CENTER = [-1.286389, 36.817223];
+
+// Enhanced Services Data
+const services = {
+  transport: [
+    {
+      id: 1,
+      name: "Metro Transit Buses",
+      type: "bus",
+      icon: <FaBus size={20} />,
+      routes: [
+        { name: "CBD to Westlands", duration: "25 min", stops: 8, price: "Ksh 50" },
+        { name: "CBD to Karen", duration: "35 min", stops: 12, price: "Ksh 80" }
+      ],
+      contact: "0722000001",
+      location: [-1.266, 36.807],
+      rating: 4.2,
+      schedule: "5:30 AM - 10:30 PM",
+      features: ["AC buses", "Mobile payment", "Priority seating"],
+      operator: "Nairobi Metro Transit"
+    },
+    {
+      id: 2,
+      name: "Nairobi Taxi Network",
+      type: "taxi",
+      icon: <FaTaxi size={20} />,
+      vehicleTypes: [
+        { name: "Standard", price: "Ksh 300 base + Ksh 50/km" },
+        { name: "Executive", price: "Ksh 500 base + Ksh 80/km" },
+        { name: "XL", price: "Ksh 700 base + Ksh 100/km" }
+      ],
+      contact: "0722000002",
+      location: [-1.276, 36.817],
+      rating: 4.5,
+      schedule: "24/7",
+      features: ["Child seats", "English-speaking drivers"],
+      operator: "Nairobi Taxi Co-op"
+    },
+    {
+      id: 3,
+      name: "Commuter Rail",
+      type: "train",
+      icon: <FaTrain size={20} />,
+      routes: [
+        { name: "Central to Syokimau", duration: "45 min", stops: 6, price: "Ksh 100" }
+      ],
+      contact: "0722000003",
+      location: [-1.286, 36.827],
+      rating: 4.3,
+      schedule: "6:00 AM - 9:00 PM",
+      features: ["First class option", "Bike racks"],
+      operator: "Kenya Railways"
     }
-  };
-
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Plan Your Journey</h2>
-      <div className="space-y-4">
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">From</label>
-            <input
-              type="text"
-              value={origin}
-              onChange={(e) => setOrigin(e.target.value)}
-              placeholder="Enter starting location"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">To</label>
-            <input
-              type="text"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              placeholder="Enter destination"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md"
-        >
-          Search Routes
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// Mock RouteCard component
-function RouteCard({ route, onClick }) {
-  return (
-    <div 
-      onClick={onClick}
-      className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100 cursor-pointer hover:border-blue-200"
-    >
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800">{route.name}</h3>
-          <p className="text-sm text-gray-600 mt-1">{route.type} • {route.stops} stops</p>
-        </div>
-        <div className="text-right">
-          <p className="text-2xl font-bold text-blue-600">{route.price}</p>
-          <p className="text-sm text-gray-500">{route.duration}</p>
-        </div>
-      </div>
-      
-      <div className="flex justify-between items-center mb-3">
-        <div>
-          <p className="text-sm text-gray-600">Departure</p>
-          <p className="font-medium">{route.departure}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Arrival</p>
-          <p className="font-medium">{route.arrival}</p>
-        </div>
-      </div>
-      
-      <div className="flex flex-wrap gap-2">
-        {route.features.map((feature, index) => (
-          <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-            {feature}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// Service Card Component
-function ServiceCard({ service, onMapClick }) {
-  const getIcon = (type) => {
-    switch(type) {
-      case 'bike': return <span className="text-2xl">🚲</span>;
-      case 'taxi': return <span className="text-2xl">🚕</span>;
-      case 'health': return <span className="text-2xl">🏥</span>;
-      case 'school': return <span className="text-2xl">🏫</span>;
-      default: return <span className="text-2xl">📍</span>;
+  ],
+  bike: [
+    {
+      id: 101,
+      name: "CBD Bike Station",
+      type: "bike",
+      icon: <FaBicycle size={20} />,
+      location: [-1.2833, 36.8172],
+      bikesAvailable: 12,
+      slotsAvailable: 8,
+      price: "Ksh 200/hour",
+      contact: "0722111222",
+      rating: 4.4,
+      features: ["E-bikes available", "24/7 access"],
+      paymentMethods: ["M-Pesa", "Credit Card"]
     }
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 hover:border-blue-200">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          {getIcon(service.type)}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">{service.name}</h3>
-            <p className="text-sm text-gray-600">{service.category}</p>
-          </div>
-        </div>
-        <button
-          onClick={() => onMapClick(service)}
-          className="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-50 transition-colors text-lg"
-        >
-          📍
-        </button>
-      </div>
-
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <span className="text-xs">🕒</span>
-          <span>{service.hours}</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <span className="text-xs">📞</span>
-          <span>{service.phone}</span>
-        </div>
-        {service.rating && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-yellow-500 text-xs">⭐</span>
-            <span className="text-gray-600">{service.rating}/5 ({service.reviews} reviews)</span>
-          </div>
-        )}
-      </div>
-
-      <p className="text-sm text-gray-700 mb-3">{service.description}</p>
-
-      {service.features && (
-        <div className="flex flex-wrap gap-2">
-          {service.features.map((feature, index) => (
-            <span key={index} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
-              {feature}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {service.price && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <p className="text-sm font-medium text-green-600">{service.price}</p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function Transport() {
-  const [routes, setRoutes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [showMap, setShowMap] = useState(false);
-  const [selectedRoute, setSelectedRoute] = useState(null);
-  const [selectedService, setSelectedService] = useState(null);
-  const [activeTab, setActiveTab] = useState('routes');
-
-  // Mock services data
-  const services = {
-    bike: [
-      {
-        id: 1,
-        name: 'CityBike Rental',
-        category: 'Bike Rental',
-        type: 'bike',
-        hours: '6:00 AM - 10:00 PM',
-        phone: '+1 (555) 123-4567',
-        rating: 4.5,
-        reviews: 142,
-        description: 'Electric and standard bikes available for hourly or daily rental.',
-        features: ['Electric bikes', 'Helmet included', 'GPS tracking'],
-        price: 'From $5/hour',
-        coordinates: [51.505, -0.09]
-      },
-      {
-        id: 2,
-        name: 'EcoWheels Station',
-        category: 'Bike Share',
-        type: 'bike',
-        hours: '24/7',
-        phone: '+1 (555) 987-6543',
-        rating: 4.2,
-        reviews: 89,
-        description: 'Sustainable bike sharing with multiple pickup locations.',
-        features: ['Solar charging', 'App booking', 'Student discounts'],
-        price: '$2/30 minutes',
-        coordinates: [51.51, -0.1]
+  ],
+  education: [
+    {
+      id: 201,
+      name: "Nairobi School",
+      type: "school",
+      icon: <FaSchool size={20} />,
+      location: [-1.286, 36.827],
+      rating: 4.8,
+      fees: "Ksh 50,000/term",
+      contact: "0722333444",
+      programs: ["Primary", "Secondary", "A-Levels"],
+      facilities: ["Library", "Sports", "Computer Lab"],
+      admission: {
+        requirements: ["Birth certificate", "Report cards"],
+        process: "Interview and assessment"
       }
-    ],
-    taxi: [
-      {
-        id: 3,
-        name: 'QuickRide Taxi',
-        category: 'Taxi Service',
-        type: 'taxi',
-        hours: '24/7',
-        phone: '+1 (555) 456-7890',
-        rating: 4.3,
-        reviews: 267,
-        description: 'Reliable taxi service with modern fleet and professional drivers.',
-        features: ['Card payment', 'Airport service', 'Wheelchair accessible'],
-        price: '$2.50 base + $1.80/mile',
-        coordinates: [51.515, -0.1]
-      },
-      {
-        id: 4,
-        name: 'Metro Cabs',
-        category: 'Premium Taxi',
-        type: 'taxi',
-        hours: '24/7',
-        phone: '+1 (555) 234-5678',
-        rating: 4.7,
-        reviews: 198,
-        description: 'Premium taxi service with luxury vehicles and executive drivers.',
-        features: ['Luxury vehicles', 'Corporate accounts', 'Meet & greet'],
-        price: '$5 base + $2.50/mile',
-        coordinates: [51.5, -0.08]
+    },
+    {
+      id: 202,
+      name: "University of Nairobi",
+      type: "university",
+      icon: <FaUniversity size={20} />,
+      location: [-1.276, 36.817],
+      rating: 4.9,
+      fees: "Ksh 80,000/semester",
+      contact: "0733444555",
+      programs: ["Undergraduate", "Postgraduate"],
+      faculties: ["Medicine", "Engineering", "Business"]
+    }
+  ],
+  health: [
+    {
+      id: 301,
+      name: "Nairobi Hospital",
+      type: "hospital",
+      icon: <FaHospital size={20} />,
+      location: [-1.296, 36.807],
+      rating: 4.6,
+      contact: "0733555777",
+      services: ["Emergency", "Pharmacy", "Consultation"],
+      specialists: ["Cardiology", "Pediatrics", "Orthopedics"],
+      insurance: ["NHIF", "AAR", "Jubilee"]
+    },
+    {
+      id: 302,
+      name: "Avenue Healthcare",
+      type: "clinic",
+      icon: <FaClinicMedical size={20} />,
+      location: [-1.266, 36.797],
+      rating: 4.4,
+      contact: "0711222333",
+      services: ["Outpatient", "Lab Tests", "Vaccination"],
+      operatingHours: {
+        weekdays: "8:00 AM - 8:00 PM",
+        weekends: "9:00 AM - 5:00 PM"
       }
-    ],
-    health: [
-      {
-        id: 5,
-        name: 'Central Medical Center',
-        category: 'Hospital',
-        type: 'health',
-        hours: '24/7 Emergency',
-        phone: '+1 (555) 911-0000',
-        rating: 4.1,
-        reviews: 324,
-        description: 'Full-service hospital with emergency care and specialist services.',
-        features: ['Emergency care', 'Specialists', 'Surgery center'],
-        coordinates: [51.495, -0.07]
-      },
-      {
-        id: 6,
-        name: 'Family Health Clinic',
-        category: 'Primary Care',
-        type: 'health',
-        hours: '8:00 AM - 6:00 PM',
-        phone: '+1 (555) health-1',
-        rating: 4.6,
-        reviews: 156,
-        description: 'Comprehensive primary care for families and individuals.',
-        features: ['Walk-ins welcome', 'Preventive care', 'Pediatrics'],
-        coordinates: [51.52, -0.11]
-      }
-    ],
-    school: [
-      {
-        id: 7,
-        name: 'Riverside Elementary',
-        category: 'Elementary School',
-        type: 'school',
-        hours: '7:30 AM - 3:30 PM',
-        phone: '+1 (555) school-1',
-        rating: 4.4,
-        reviews: 89,
-        description: 'Public elementary school serving grades K-5 with excellent programs.',
-        features: ['After-school care', 'Sports programs', 'Arts education'],
-        coordinates: [51.508, -0.09]
-      },
-      {
-        id: 8,
-        name: 'Tech High School',
-        category: 'High School',
-        type: 'school',
-        hours: '8:00 AM - 4:00 PM',
-        phone: '+1 (555) school-2',
-        rating: 4.5,
-        reviews: 112,
-        description: 'Modern high school with STEM focus and career preparation.',
-        features: ['STEM programs', 'Career center', 'College prep'],
-        coordinates: [51.512, -0.12]
-      }
-    ]
-  };
+    }
+  ],
+  entertainment: [
+    {
+      id: 401,
+      name: "The Hub Karen",
+      type: "mall",
+      icon: <MdShoppingCart size={20} />,
+      location: [-1.316, 36.707],
+      rating: 4.3,
+      contact: "0722444666",
+      facilities: ["Cinema", "Restaurants", "Shops"],
+      openingHours: "9:00 AM - 10:00 PM",
+      parking: "Available (Ksh 200)"
+    },
+    {
+      id: 402,
+      name: "Carnivore Restaurant",
+      type: "restaurant",
+      icon: <MdRestaurant size={20} />,
+      location: [-1.326, 36.717],
+      rating: 4.5,
+      contact: "0722555888",
+      cuisine: ["African", "Grill", "Bar"],
+      priceRange: "Ksh 2,500 - Ksh 5,000",
+      reservations: true
+    }
+    
+  ]
+};
 
-  const handleSearch = (origin, destination) => {
-    setLoading(true);
-    setTimeout(() => {
-      setRoutes([
-        {
-          id: 1,
-          name: 'Express Bus 42',
-          departure: '10:15 AM',
-          arrival: '10:40 AM',
-          duration: '25 min',
-          price: '$2.50',
-          type: 'bus',
-          stops: 5,
-          features: ['Wheelchair accessible', 'Air conditioning'],
-          coordinates: [[51.505, -0.09], [51.51, -0.1], [51.515, -0.1]]
-        },
-        {
-          id: 2,
-          name: 'Downtown Loop',
-          departure: 'Every 15 min',
-          arrival: 'Flexible',
-          duration: '40 min',
-          price: '$3.00',
-          type: 'bus',
-          stops: 8,
-          features: ['Free WiFi', 'USB Charging'],
-          coordinates: [[51.505, -0.09], [51.5, -0.08], [51.495, -0.07]]
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
-  };
+// Custom marker icon
+const createCustomIcon = (color = '#3B82F6') => {
+  return L.divIcon({
+    html: `
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="${color}">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+      </svg>
+    `,
+    iconSize: [30, 30],
+    iconAnchor: [15, 30]
+  });
+};
 
-  const handleServiceMapClick = (service) => {
-    setSelectedService(service);
-    setShowMap(true);
-  };
+// Component Styles
+const styles = `
+  .urban-flow-container {
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ecf7faff;
+  }
+  
+  .header {
+    margin-bottom: 30px;
+  }
+  
+  .app-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 5px;
+  }
+  
+  .app-title span {
+    color: #2563eb;
+  }
+  
+  .app-subtitle {
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+  
+  .search-container {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 12px 20px 12px 40px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    font-size: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+  }
+  
+  .category-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+  
+  .category-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .category-btn.active {
+    background-color: #1cdf43ff;
+    color: white;
+  }
+  
+  .category-btn.inactive {
+    background-color: white;
+    color: #374151;
+  }
+  
+  .map-toggle-btn {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: white;
+    border-radius: 8px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: none;
+    cursor: pointer;
+  }
+  
+  .services-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .services-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #111827;
+  }
+  
+  .service-card {
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .service-card.selected {
+    background-color: #eff6ff;
+    border-left: 4px solid #f71d1dff;
+  }
+  
+  .service-card.unselected {
+    background-color: white;
+  }
+  
+  .service-card:hover {
+    background-color: #6ff483ff;
+  }
+  
+  .service-card-content {
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .service-icon {
+    padding: 8px;
+    margin-right: 16px;
+    border-radius: 50%;
+    background-color: #eff6ff;
+    color: #2563eb;
+  }
+  
+  .service-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #111827;
+  }
+  
+  .service-meta {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+  
+  .star-icon {
+    color: #f59e0b;
+    margin-right: 4px;
+  }
+  
+  .divider {
+    margin: 0 8px;
+  }
+  
+  .map-container {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    height: 500px;
+    margin-top: 20px;
+  }
+  
+  .no-services {
+    text-align: center;
+    color: #6b7280;
+    padding: 40px 0;
+  }
 
-  const handleRouteMapClick = (route) => {
-    setSelectedRoute(route);
-    setSelectedService(null);
-    setShowMap(true);
-  };
+  /* Transport Specific Styles */
+  .transport-type-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
 
-  const tabs = [
-    { id: 'routes', label: 'Routes', icon: '🚌' },
-    { id: 'bike', label: 'Bike Hire', icon: '🚲' },
-    { id: 'taxi', label: 'Taxi Services', icon: '🚕' },
-    { id: 'health', label: 'Health Services', icon: '🏥' },
-    { id: 'school', label: 'School Services', icon: '🏫' }
+  .transport-type-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    background: #e5e7eb;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .transport-type-btn.active {
+    background: #2563eb;
+    color: white;
+  }
+
+  .route-planner {
+    background: #f3f4f6;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .route-planner h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+  }
+
+  .route-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .route-inputs input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .plan-route-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .bike-hire-card {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .bike-station-info h4 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+  }
+
+  .bike-availability {
+    display: flex;
+    gap: 12px;
+    margin: 8px 0;
+    font-size: 14px;
+    color: #6b7280;
+  }
+
+  .bike-pricing {
+    font-weight: 500;
+    color: #111827;
+  }
+
+  .hire-btn {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  /* Itinerary Styles */
+  .itinerary-panel {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .itinerary-panel h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+  }
+
+  .itinerary-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .itinerary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .item-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item-name {
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .item-time {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .remove-btn {
+    background: #fef2f2;
+    color: #ef4444;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .empty-itinerary {
+    color: #6b7280;
+    text-align: center;
+    padding: 16px 0;
+    font-size: 14px;
+  }
+
+  /* Service Details Styles */
+  .service-details {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .service-details h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+  }
+
+  .detail-row {
+    display: flex;
+    margin-bottom: 8px;
+  }
+
+  .detail-label {
+    font-weight: 500;
+    width: 120px;
+    color: #4b5563;
+  }
+
+  .detail-value {
+    flex: 1;
+  }
+
+  .features-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .feature-tag {
+    background: #e5e7eb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .action-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+`;
+
+// Components
+const TransportTypeFilter = ({ activeType, onChange }) => {
+  const types = [
+    { id: "all", name: "All Transport" },
+    { id: "bus", name: "Buses" },
+    { id: "taxi", name: "Taxis" },
+    { id: "bike", name: "Bike Hire" }
   ];
 
   return (
-    <div className="p-4 max-w-6xl mx-auto bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4 text-gray-800 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-          Urban Transport & Services Hub
-        </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Your one-stop destination for transportation, bike rentals, taxi services, healthcare, and educational facilities
-        </p>
+    <div className="transport-type-filters">
+      {types.map(type => (
+        <button
+          key={type.id}
+          className={`transport-type-btn ${activeType === type.id ? 'active' : ''}`}
+          onClick={() => onChange(type.id)}
+        >
+          {type.name}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const RoutePlanner = ({ onPlanRoute }) => {
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [time, setTime] = useState("");
+
+  return (
+    <div className="route-planner">
+      <h3>Plan Your Route</h3>
+      <div className="route-inputs">
+        <input
+          type="text"
+          placeholder="Starting point"
+          value={start}
+          onChange={(e) => setStart(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Destination"
+          value={end}
+          onChange={(e) => setEnd(e.target.value)}
+        />
+        <input
+          type="time"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+        />
       </div>
+      <button 
+        className="plan-route-btn"
+        onClick={() => onPlanRoute({ start, end, time })}
+      >
+        <FiNavigation size={16} /> Find Best Route
+      </button>
+    </div>
+  );
+};
 
-      {/* Transport Planner */}
-      <section className="mb-8 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <TransportPlanner onSearch={handleSearch} />
-      </section>
-
-      {/* Navigation Tabs */}
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-2 bg-white rounded-xl p-2 shadow-md">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                activeTab === tab.id 
-                  ? 'bg-blue-600 text-white shadow-md' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              {tab.icon}
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          ))}
+const BikeHireCard = ({ station, onHire }) => {
+  return (
+    <div className="bike-hire-card">
+      <div className="bike-station-info">
+        <h4>{station.name}</h4>
+        <div className="bike-availability">
+          <span>Bikes: {station.bikesAvailable}</span>
+          <span>Slots: {station.slotsAvailable}</span>
         </div>
+        <div className="bike-pricing">{station.price}</div>
       </div>
+      <button 
+        className="hire-btn"
+        onClick={() => onHire(station)}
+      >
+        <FiCreditCard size={14} /> Hire Bike
+      </button>
+    </div>
+  );
+};
 
-      {/* Routes Section */}
-      {activeTab === 'routes' && (
-        <section className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Available Routes</h2>
-            {routes.length > 0 && (
+const ItineraryPanel = ({ items, onRemove }) => {
+  return (
+    <div className="itinerary-panel">
+      <h3>Your Itinerary</h3>
+      {items.length === 0 ? (
+        <p className="empty-itinerary">No items in your itinerary yet</p>
+      ) : (
+        <ul className="itinerary-list">
+          {items.map((item, index) => (
+            <li key={index} className="itinerary-item">
+              <div className="item-details">
+                <span className="item-name">{item.name}</span>
+                <span className="item-time">{item.time}</span>
+              </div>
               <button 
-                onClick={() => handleRouteMapClick(routes[0])}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition-colors shadow-md"
+                className="remove-btn"
+                onClick={() => onRemove(index)}
               >
-                <span>📍</span> View Route Map
+                <FiMinus size={12} /> Remove
               </button>
-            )}
-          </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="mt-3 text-gray-600">Finding best routes...</p>
-            </div>
-          ) : routes.length > 0 ? (
-            <div className="grid gap-4">
-              {routes.map(route => (
-                <RouteCard 
-                  key={route.id} 
-                  route={route}
-                  onClick={() => handleRouteMapClick(route)}
-                />
+const ServiceDetails = ({ service }) => {
+  if (!service) return null;
+
+  return (
+    <div className="service-details">
+      <h3>{service.name}</h3>
+      
+      <div className="detail-row">
+        <span className="detail-label">Rating:</span>
+        <span className="detail-value">
+          <FiStar className="star-icon" /> {service.rating}
+        </span>
+      </div>
+      
+      <div className="detail-row">
+        <span className="detail-label">Contact:</span>
+        <span className="detail-value">{service.contact}</span>
+      </div>
+      
+      {service.price && (
+        <div className="detail-row">
+          <span className="detail-label">Price:</span>
+          <span className="detail-value">{service.price}</span>
+        </div>
+      )}
+      
+      {service.schedule && (
+        <div className="detail-row">
+          <span className="detail-label">Schedule:</span>
+          <span className="detail-value">{service.schedule}</span>
+        </div>
+      )}
+      
+      {service.features && (
+        <>
+          <div className="detail-row">
+            <span className="detail-label">Features:</span>
+            <div className="features-list">
+              {service.features.map((feature, index) => (
+                <span key={index} className="feature-tag">{feature}</span>
               ))}
             </div>
-          ) : (
-            <div className="bg-blue-50 p-8 rounded-xl text-center border-2 border-dashed border-blue-200">
-              <p className="text-gray-700">Enter locations to find transport options</p>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* Services Sections */}
-      {activeTab !== 'routes' && (
-        <section className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
-              {tabs.find(tab => tab.id === activeTab)?.label}
-            </h2>
-            <div className="text-sm text-gray-600">
-              {services[activeTab]?.length || 0} services available
-            </div>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services[activeTab]?.map(service => (
-              <ServiceCard 
-                key={service.id} 
-                service={service}
-                onMapClick={handleServiceMapClick}
-              />
-            ))}
-          </div>
-        </section>
+        </>
       )}
+      
+      <button className="action-btn">
+        <FiNavigation size={16} /> Get Directions
+      </button>
+    </div>
+  );
+};
 
-      {/* Map Modal */}
-      {showMap && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl">
-            <div className="flex justify-between items-center p-4 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-800">
-                {selectedService?.name || selectedRoute?.name || 'Map View'}
-              </h3>
-              <button 
-                onClick={() => setShowMap(false)}
-                className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors text-xl"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-b-xl flex items-center justify-center">
-              <div className="text-center p-6">
-                <div className="mx-auto text-5xl mb-4">📍</div>
-                <h4 className="text-xl font-semibold mb-2 text-gray-800">Interactive Map</h4>
-                {selectedService ? (
-                  <div className="space-y-2">
-                    <p className="text-gray-600">
-                      <strong>{selectedService.name}</strong> - {selectedService.category}
-                    </p>
-                    <p className="text-gray-600">{selectedService.description}</p>
-                    <p className="text-sm text-gray-500">
-                      Location: {selectedService.coordinates[0]}, {selectedService.coordinates[1]}
-                    </p>
-                  </div>
-                ) : selectedRoute ? (
-                  <div className="space-y-2">
-                    <p className="text-gray-600">
-                      Route: <strong>{selectedRoute.name}</strong>
-                    </p>
-                    <p className="text-gray-600">
-                      {selectedRoute.departure} → {selectedRoute.arrival}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Duration: {selectedRoute.duration} | Price: {selectedRoute.price}
-                    </p>
-                  </div>
-                ) : null}
-                <p className="text-sm text-gray-500 mt-4">
-                  Interactive map with real-time data would display here
-                </p>
-              </div>
-            </div>
+const ServiceCard = ({ service, isSelected, onClick }) => {
+  const iconColors = {
+    transport: '#3B82F6',
+    bus: '#3B82F6',
+    taxi: '#10B981',
+    train: '#8B5CF6',
+    bike: '#10B981',
+    education: '#F59E0B',
+    school: '#F59E0B',
+    university: '#F59E0B',
+    health: '#EF4444',
+    hospital: '#EF4444',
+    clinic: '#EF4444',
+    entertainment: '#8B5CF6',
+    mall: '#8B5CF6',
+    restaurant: '#8B5CF6'
+  };
+
+  return (
+    <div 
+      className={`service-card ${isSelected ? 'selected' : 'unselected'}`}
+      onClick={() => onClick(service)}
+    >
+      <div className="service-card-content">
+        <div 
+          className="service-icon" 
+          style={{ 
+            backgroundColor: `${iconColors[service.type]}20`,
+            color: iconColors[service.type]
+          }}
+        >
+          {service.icon}
+        </div>
+        <div>
+          <h3 className="service-name">{service.name}</h3>
+          <div className="service-meta">
+            <FiStar className="star-icon" />
+            <span>{service.rating}</span>
+            <span className="divider">•</span>
+            <span>{service.price || service.fees || "See pricing"}</span>
+          </div>
+          <div className="service-meta">
+            <FiClock />
+            <span>{service.schedule || "Check schedule"}</span>
           </div>
         </div>
-      )}
+      </div>
+    </div>
+  );
+};
+
+// Main App Component
+export default function UrbanFlow() {
+  const [selectedService, setSelectedService] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState("transport");
+  const [transportType, setTransportType] = useState("all");
+  const [showMap, setShowMap] = useState(false);
+  const [itinerary, setItinerary] = useState([]);
+
+  const handlePlanRoute = (routeDetails) => {
+    const suggestedRoutes = [
+      {
+        id: Date.now(),
+        name: `${routeDetails.start} to ${routeDetails.end}`,
+        transportType: "bus",
+        duration: "35 min",
+        price: "Ksh 120",
+        time: new Date().toLocaleTimeString(),
+        steps: [
+          "Walk to bus stop (5 min)",
+          "Take Route 23 to Downtown (15 min)",
+          "Transfer to Route 42 (10 min)",
+          "Walk to destination (5 min)"
+        ]
+      }
+    ];
+    
+    setItinerary(prev => [...prev, ...suggestedRoutes]);
+  };
+
+  const handleHireBike = (station) => {
+    const hireDetails = {
+      id: Date.now(),
+      name: `Bike hire at ${station.name}`,
+      time: new Date().toLocaleTimeString(),
+      price: station.price,
+      station: station.name
+    };
+    
+    setItinerary(prev => [...prev, hireDetails]);
+  };
+
+  const removeFromItinerary = (index) => {
+    setItinerary(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const filteredServices = services[activeCategory]?.filter(service =>
+    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.type.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  const categories = [
+    { id: "transport", name: "Transport" },
+    { id: "education", name: "Education" },
+    { id: "health", name: "Health" },
+    { id: "entertainment", name: "Entertainment" }
+  ];
+
+  return (
+    <div className="urban-flow-container">
+      <style>{styles}</style>
+      
+      {/* Header */}
+      <header className="header">
+        <h1 className="app-title">
+          <span>Urban</span> Flow
+        </h1>
+        <p className="app-subtitle">Nairobi's Transport & Services Network</p>
+        
+        {/* Search Bar */}
+        <div className="search-container">
+          <FiSearch className="search-icon" />
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search services..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </header>
+
+      {/* Category Filters */}
+      <div className="category-filters">
+        {categories.map(category => (
+          <button
+            key={category.id}
+            className={`category-btn ${activeCategory === category.id ? 'active' : 'inactive'}`}
+            onClick={() => setActiveCategory(category.id)}
+          >
+            {category.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Map Toggle Button */}
+      <button
+        className="map-toggle-btn"
+        onClick={() => setShowMap(!showMap)}
+      >
+        <FiMap style={{ marginRight: '8px' }} />
+        {showMap ? "Hide Map" : "Show Map"}
+      </button>
+
+      {/* Main Content */}
+      <div>
+        {/* Transport Section */}
+        {activeCategory === "transport" && (
+          <>
+            <TransportTypeFilter 
+              activeType={transportType}
+              onChange={setTransportType}
+            />
+            
+            <RoutePlanner onPlanRoute={handlePlanRoute} />
+            
+            {transportType === "bike" ? (
+              <div className="services-container">
+                <h2 className="services-title">Bike Hire Stations</h2>
+                {services.bike.map(station => (
+                  <BikeHireCard 
+                    key={station.id}
+                    station={station}
+                    onHire={handleHireBike}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="services-container">
+                <h2 className="services-title">
+                  {transportType === "all" ? "All Transport" : 
+                   transportType === "bus" ? "Bus Services" : "Taxi Services"}
+                </h2>
+                {filteredServices
+                  .filter(service => transportType === "all" || service.type === transportType)
+                  .map(service => (
+                    <ServiceCard
+                      key={service.id}
+                      service={service}
+                      isSelected={selectedService?.id === service.id}
+                      onClick={(service) => {
+                        setSelectedService(service);
+                        setShowMap(true);
+                      }}
+                    />
+                  ))
+                }
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Other Categories */}
+        {activeCategory !== "transport" && (
+          <div className="services-container">
+            <h2 className="services-title">
+              {categories.find(c => c.id === activeCategory)?.name}
+            </h2>
+            {filteredServices.length > 0 ? (
+              filteredServices.map(service => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  isSelected={selectedService?.id === service.id}
+                  onClick={(service) => {
+                    setSelectedService(service);
+                    setShowMap(true);
+                  }}
+                />
+              ))
+            ) : (
+              <p className="no-services">No services found</p>
+            )}
+          </div>
+        )}
+
+        {/* Service Details */}
+        {selectedService && <ServiceDetails service={selectedService} />}
+
+        {/* Itinerary Panel */}
+        <ItineraryPanel 
+          items={itinerary}
+          onRemove={removeFromItinerary}
+        />
+
+        {/* Map (Conditionally Rendered) */}
+        {showMap && (
+          <div className="map-container">
+            <MapContainer 
+              center={selectedService?.location || NAIROBI_CENTER} 
+              zoom={selectedService ? 15 : 13} 
+              style={{ height: '100%', width: '100%' }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              
+              {filteredServices.map(service => (
+                <Marker
+                  key={service.id}
+                  position={service.location}
+                  icon={createCustomIcon(
+                    service.type === 'bus' ? '#3B82F6' :
+                    service.type === 'taxi' ? '#10B981' :
+                    service.type === 'train' ? '#8B5CF6' :
+                    service.type === 'bike' ? '#10B981' :
+                    service.type === 'school' ? '#F59E0B' :
+                    service.type === 'hospital' ? '#EF4444' : '#8B5CF6'
+                  )}
+                  eventHandlers={{
+                    click: () => setSelectedService(service)
+                  }}
+                >
+                  <Popup>
+                    <div style={{ width: '200px' }}>
+                      <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '8px' }}>
+                        {service.name}
+                      </h3>
+                      <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', color: '#6b7280', marginBottom: '4px' }}>
+                        <FiStar style={{ color: '#f59e0b', marginRight: '4px' }} />
+                        <span>{service.rating}</span>
+                      </div>
+                      <div style={{ fontSize: '0.875rem', marginTop: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                          <FiPhone style={{ color: '#9ca3af', marginRight: '8px' }} />
+                          <span>{service.contact}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <FiClock style={{ color: '#9ca3af', marginRight: '8px' }} />
+                          <span>{service.schedule || "Check schedule"}</span>
+                        </div>
+                      </div>
+                      <button style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '6px 12px',
+                        backgroundColor: '#2563eb',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '0.875rem',
+                        marginTop: '12px',
+                        cursor: 'pointer'
+                      }}>
+                        <FiNavigation style={{ marginRight: '8px' }} />
+                        Directions
+                      </button>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

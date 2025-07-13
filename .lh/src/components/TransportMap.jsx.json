@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/components/TransportMap.jsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752390442238,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752390442238,
+            "name": "Commit-0",
+            "content": "import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';\r\nimport L from 'leaflet';\r\nimport 'leaflet/dist/leaflet.css';\r\nimport { useEffect, useRef } from 'react';\r\n\r\n// Fix for default marker icons\r\ndelete L.Icon.Default.prototype._getIconUrl;\r\nL.Icon.Default.mergeOptions({\r\n  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',\r\n  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',\r\n  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',\r\n});\r\n\r\n// Sample locations in New York\r\nconst locations = {\r\n  timesSquare: [40.7580, -73.9855],\r\n  centralPark: [40.7829, -73.9654],\r\n  empireState: [40.7484, -73.9857],\r\n  brooklynBridge: [40.7061, -73.9969],\r\n  statenIslandFerry: [40.7026, -74.0144]\r\n};\r\n\r\n// Sample transport routes\r\nconst routes = [\r\n  {\r\n    name: \"Downtown Express\",\r\n    coordinates: [\r\n      locations.timesSquare,\r\n      [40.7536, -73.9832],\r\n      [40.7506, -73.9866],\r\n      locations.brooklynBridge\r\n    ],\r\n    color: \"blue\"\r\n  },\r\n  {\r\n    name: \"Uptown Circle\",\r\n    coordinates: [\r\n      locations.centralPark,\r\n      [40.7752, -73.9748],\r\n      [40.7913, -73.9646],\r\n      [40.8006, -73.9581],\r\n      locations.centralPark\r\n    ],\r\n    color: \"green\"\r\n  }\r\n];\r\n\r\nexport default function TransportMap() {\r\n  const mapRef = useRef();\r\n\r\n  useEffect(() => {\r\n    if (mapRef.current) {\r\n      // Fit map to show all markers\r\n      const bounds = L.latLngBounds(Object.values(locations));\r\n      mapRef.current.fitBounds(bounds);\r\n    }\r\n  }, []);\r\n\r\n  return (\r\n    <div style={{ height: \"500px\", width: \"100%\", borderRadius: \"10px\", overflow: \"hidden\" }}>\r\n      <MapContainer\r\n        center={locations.timesSquare}\r\n        zoom={13}\r\n        style={{ height: \"100%\", width: \"100%\" }}\r\n        ref={mapRef}\r\n      >\r\n        <TileLayer\r\n          url=\"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png\"\r\n          attribution='&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors'\r\n        />\r\n\r\n        {/* Markers for locations */}\r\n        {Object.entries(locations).map(([name, coords]) => (\r\n          <Marker key={name} position={coords}>\r\n            <Popup>\r\n              <div style={{ textTransform: \"capitalize\" }}>\r\n                {name.replace(/([A-Z])/g, ' $1').trim()}\r\n              </div>\r\n            </Popup>\r\n          </Marker>\r\n        ))}\r\n\r\n        {/* Transport routes */}\r\n        {routes.map((route, idx) => (\r\n          <Polyline\r\n            key={idx}\r\n            positions={route.coordinates}\r\n            color={route.color}\r\n            weight={4}\r\n          >\r\n            <Popup>{route.name}</Popup>\r\n          </Polyline>\r\n        ))}\r\n      </MapContainer>\r\n    </div>\r\n  );\r\n}"
+        }
+    ]
+}
