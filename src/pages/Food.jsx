@@ -24,6 +24,15 @@ const Food = () => {
   const [favorites, setFavorites] = useState([]);
   const [activeCuisine, setActiveCuisine] = useState('all');
   const [popupItem, setPopupItem] = useState(null);
+  const placeOrder = (restaurant) => {
+  if (restaurant.orderLink) {
+    // Open restaurant's ordering page in new tab
+    window.open(restaurant.orderLink, '_blank');
+  } else {
+    // Show message if no ordering link available
+    alert(`Online ordering not available for ${restaurant.name}. Please call them directly at ${restaurant.contact}`);
+  }
+};
 
   // RESTAURANT DATA - 12 total restaurants
   const restaurants = [
@@ -38,7 +47,7 @@ const Food = () => {
       reviewCount: 1842,
       deliveryTime: '25-40 min',
       priceRange: '$$',
-      image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGdyaWxsZWQlMjBtZWF0fGVufDB8fDB8fHww',
       specialties: ['Nyama Choma', 'Ugali', 'Sukuma Wiki'],
       location: 'Delta Towers, Westlands',
       deliveryFee: 'Ksh 180',
@@ -46,6 +55,7 @@ const Food = () => {
       openHours: '10:00 AM - 11:00 PM',
       contact: '020 440 0055',
       whatsapp: '+254 711 111 111',
+      orderLink: 'https://nyamamakenya.com/order-online',
       features: ['Vegetarian Options', 'Bar', 'Outdoor Seating'],
       menu: [
         { 
@@ -93,7 +103,7 @@ const Food = () => {
       reviewCount: 2250,
       deliveryTime: '20-35 min',
       priceRange: '$',
-      image: 'https://images.unsplash.com/photo-1581349485608-9469926a8e5e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1705472542518-7de5cddafbca?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODd8fGtmY3xlbnwwfHwwfHx8MA%3D%3D',
       specialties: ['Bucket Meals', 'Zinger Burger', 'Hot Wings'],
       location: 'Thika Road Mall',
       deliveryFee: 'Ksh 150',
@@ -122,7 +132,7 @@ const Food = () => {
       reviewCount: 1980,
       deliveryTime: '30-45 min',
       priceRange: '$$',
-      image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1615719413546-198b25453f85?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzh8fHBpenphfGVufDB8fDB8fHww',
       specialties: ['Peri-Peri Pizza', 'Garlic Bread', 'Chicken Wings'],
       location: 'The Junction Mall',
       deliveryFee: 'Ksh 200',
@@ -151,7 +161,7 @@ const Food = () => {
       reviewCount: 1320,
       deliveryTime: '25-40 min',
       priceRange: '$$',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1662982693758-f69fcb81e7d2?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGJ1ZmZldHxlbnwwfHwwfHx8MA%3D%3D',
       specialties: ['Artisan Coffee', 'Avocado Toast', 'Pancakes'],
       location: 'Karen Shopping Centre',
       deliveryFee: 'Ksh 180',
@@ -182,7 +192,7 @@ const Food = () => {
       reviewCount: 1560,
       deliveryTime: '35-50 min',
       priceRange: '$$$',
-      image: 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1506280754576-f6fa8a873550?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGl0YWxpYW4lMjBmb29kfGVufDB8fDB8fHww',
       specialties: ['Truffle Pasta', 'Wood-Fired Pizza', 'Tiramisu'],
       location: 'Westlands',
       deliveryFee: 'Ksh 220',
@@ -213,7 +223,7 @@ const Food = () => {
       reviewCount: 980,
       deliveryTime: '25-40 min',
       priceRange: '$$',
-      image: 'https://images.unsplash.com/photo-1543351611-58f69d7c1781?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1606307305578-9f4121dde6d9?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dmVnZXRlcmlhbiUyMGZvb2R8ZW58MHx8MHx8fDA%3D',
       specialties: ['Vegan Burgers', 'Buddha Bowls', 'Fresh Juices'],
       location: 'Kilimani',
       deliveryFee: 'Ksh 150',
@@ -231,6 +241,7 @@ const Food = () => {
           ]
         }
       ]
+      
     },
     {
       id: 8,
@@ -242,7 +253,7 @@ const Food = () => {
       reviewCount: 1120,
       deliveryTime: '30-45 min',
       priceRange: '$$',
-      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D',
       specialties: ['Vegetable Curry', 'Stir Fry', 'Fresh Salads'],
       location: 'Yaya Centre',
       deliveryFee: 'Ksh 180',
@@ -271,7 +282,7 @@ const Food = () => {
       type: 'market',
       rating: 4.5,
       reviewCount: 632,
-      image: 'https://images.unsplash.com/photo-1578916170148-77a9caf13e2e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1584208632776-bc16f862b0b4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fG1hcmtldHBsYWNlfGVufDB8fDB8fHww',
       specialties: ['Fresh Produce', 'Spices', 'Handicrafts'],
       location: 'Village Market, Limuru Road',
       openHours: '9:00 AM - 6:00 PM (Fridays)',
@@ -293,7 +304,7 @@ const Food = () => {
       type: 'market',
       rating: 4.3,
       reviewCount: 850,
-      image: 'https://images.unsplash.com/photo-1556911220-bff31c812d0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1639887603688-ef66ab7417a2?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFya2V0JTIwb3BlbnxlbnwwfHwwfHx8MA%3D%3D',
       specialties: ['Fresh Seafood', 'Butchery', 'Spices'],
       location: 'Muindi Mbingu Street',
       openHours: '7:00 AM - 6:00 PM (Daily)',
@@ -313,7 +324,7 @@ const Food = () => {
       type: 'market',
       rating: 4.2,
       reviewCount: 720,
-      image: 'https://images.unsplash.com/photo-1581349485608-9469926a8e5e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=80',
+      image: 'https://images.unsplash.com/photo-1594300396215-3f0acf19e5ec?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YmVhZCUyMHByb2R1Y3RzfGVufDB8fDB8fHww',
       specialties: ['African Fabrics', 'Tailoring Services', 'Beadwork'],
       location: 'Kariakor Area',
       openHours: '8:00 AM - 5:00 PM (Mon-Sat)',
@@ -333,7 +344,7 @@ const Food = () => {
       type: 'market',
       rating: 4.0,
       reviewCount: 650,
-      image: 'https://images.unsplash.com/photo-1556911220-bff31c812d0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=60',
+      image: 'https://images.unsplash.com/photo-1650189761130-5e4a778e50d1?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fG1hcmtldHBsYWNlJTIwc3BpY2VzJTIwZ3JhaW5zfGVufDB8fDB8fHww',
       specialties: ['Fresh Produce', 'Grains', 'Spices'],
       location: 'Eastlands',
       openHours: '5:00 AM - 4:00 PM (Daily)',
@@ -353,7 +364,7 @@ const Food = () => {
       type: 'market',
       rating: 4.4,
       reviewCount: 930,
-      image: 'https://images.unsplash.com/photo-1578916170148-77a9caf13e2e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&h=300&q=60',
+      image: 'https://images.unsplash.com/photo-1732543521240-756bf0e17dfa?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGpld2VscnklMjBhbmQlMjB3b29kJTIwY2FydmluZ3N8ZW58MHx8MHx8fDA%3D',
       specialties: ['Beaded Jewelry', 'Wood Carvings', 'African Art'],
       location: 'Karen',
       openHours: '10:00 AM - 7:00 PM (Wed & Sat)',

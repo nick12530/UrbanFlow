@@ -218,14 +218,15 @@ const ChatModal = ({ darkMode, onClose }) => {
     setIsTyping(true);
     
     try {
-      // Using a free AI API endpoint (no API key needed)
+      // In a real app, you should call your own backend endpoint that then calls OpenAI
+      // This is just for demonstration purposes
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          // Note: In a production app, you should proxy this through your backend
-          // to keep your API key secure. This is just for demonstration.
-          "Authorization": `Bearer YOUR_OPENAI_API_KEY` 
+          // Note: In production, never expose your API key in frontend code
+          // This should be handled through your own backend
+          "Authorization": `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}` 
         },
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
@@ -386,7 +387,7 @@ const ChatModal = ({ darkMode, onClose }) => {
           ref={inputRef}
           type="text"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => setInputValue(e.value)}
           placeholder="Ask me about urban living..."
           disabled={isTyping}
           style={{
@@ -425,7 +426,422 @@ const ChatModal = ({ darkMode, onClose }) => {
   );
 };
 
-// Main Home Component (unchanged)
+// Weather Widget Component
+const WeatherWidget = ({ darkMode }) => {
+  const [weather, setWeather] = useState({
+    temp: 22,
+    condition: 'Partly Cloudy',
+    humidity: 65,
+    wind: 12,
+    icon: '⛅'
+  });
+
+  return (
+    <div style={{
+      backgroundColor: darkMode ? '#2d3748' : '#f3f4f6',
+      borderRadius: '12px',
+      padding: '1.5rem',
+      margin: '1rem 0',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      border: darkMode ? '1px solid #4a5568' : '1px solid #e2e8f0'
+    }}>
+      <h3 style={{ 
+        marginTop: 0, 
+        marginBottom: '1rem',
+        color: darkMode ? '#e2e8f0' : '#1e293b',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem'
+      }}>
+        <span>🌤️</span> Nairobi Weather
+      </h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <span style={{ fontSize: '3rem' }}>{weather.icon}</span>
+        <div>
+          <p style={{ 
+            margin: 0, 
+            fontSize: '2rem', 
+            fontWeight: 'bold', 
+            color: darkMode ? '#e2e8f0' : '#1e293b' 
+          }}>
+            {weather.temp}°C
+          </p>
+          <p style={{ 
+            margin: '0.25rem 0 0', 
+            color: darkMode ? '#a0aec0' : '#64748b',
+            fontSize: '0.9rem'
+          }}>
+            {weather.condition}
+          </p>
+        </div>
+      </div>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        marginTop: '1.5rem',
+        paddingTop: '1rem',
+        borderTop: darkMode ? '1px solid #4a5568' : '1px solid #e2e8f0'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ 
+            margin: '0 0 0.25rem', 
+            fontSize: '0.8rem',
+            color: darkMode ? '#a0aec0' : '#64748b'
+          }}>Humidity</p>
+          <p style={{ 
+            margin: 0, 
+            fontWeight: '600',
+            color: darkMode ? '#e2e8f0' : '#1e293b'
+          }}>{weather.humidity}%</p>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ 
+            margin: '0 0 0.25rem', 
+            fontSize: '0.8rem',
+            color: darkMode ? '#a0aec0' : '#64748b'
+          }}>Wind</p>
+          <p style={{ 
+            margin: 0, 
+            fontWeight: '600',
+            color: darkMode ? '#e2e8f0' : '#1e293b'
+          }}>{weather.wind} km/h</p>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ 
+            margin: '0 0 0.25rem', 
+            fontSize: '0.8rem',
+            color: darkMode ? '#a0aec0' : '#64748b'
+          }}>Feels Like</p>
+          <p style={{ 
+            margin: 0, 
+            fontWeight: '600',
+            color: darkMode ? '#e2e8f0' : '#1e293b'
+          }}>{weather.temp}°C</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Emergency Services Component
+const EmergencyServices = ({ darkMode }) => {
+  const services = [
+    { name: "Police", number: "999", icon: "👮", color: "#3b82f6" },
+    { name: "Ambulance", number: "911", icon: "🚑", color: "#ef4444" },
+    { name: "Fire Brigade", number: "999", icon: "🚒", color: "#f59e0b" },
+    { name: "Child Helpline", number: "116", icon: "🧒", color: "#10b981" }
+  ];
+
+  return (
+    <div style={{
+      backgroundColor: darkMode ? '#2d3748' : '#f3f4f6',
+      borderRadius: '12px',
+      padding: '1.5rem',
+      margin: '1rem 0',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      border: darkMode ? '1px solid #4a5568' : '1px solid #e2e8f0'
+    }}>
+      <h3 style={{ 
+        marginTop: 0, 
+        marginBottom: '1.5rem',
+        color: darkMode ? '#e2e8f0' : '#1e293b',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem'
+      }}>
+        <span>🚨</span> Emergency Contacts
+      </h3>
+      <div style={{ 
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: '1rem'
+      }}>
+        {services.map((service) => (
+          <a 
+            key={service.name}
+            href={`tel:${service.number}`}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1rem',
+              borderRadius: '8px',
+              backgroundColor: darkMode ? '#4a5568' : '#e2e8f0',
+              color: darkMode ? '#e2e8f0' : '#1e293b',
+              textDecoration: 'none',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              ':hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+              }
+            }}
+          >
+            <span style={{ 
+              fontSize: '1.8rem',
+              marginBottom: '0.5rem'
+            }}>{service.icon}</span>
+            <span style={{ 
+              fontWeight: '600',
+              marginBottom: '0.25rem'
+            }}>{service.name}</span>
+            <span style={{ 
+              fontSize: '1rem',
+              fontWeight: '700',
+              color: service.color
+            }}>{service.number}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Events Widget Component
+const EventsWidget = ({ darkMode }) => {
+  const [events, setEvents] = useState([
+    {
+      id: 1,
+      name: "Nairobi Jazz Festival",
+      date: "2023-08-15",
+      venue: "KICC",
+      description: "Annual jazz festival featuring local and international artists. A celebration of African jazz heritage.",
+      image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+    },
+    {
+      id: 2,
+      name: "Kenya National Theatre Play",
+      date: "2023-08-20",
+      venue: "Kenya National Theatre",
+      description: "Award-winning theatrical performance showcasing Kenya's rich cultural stories.",
+      image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+    },
+    {
+      id: 3,
+      name: "Nairobi Food Festival",
+      date: "2023-09-05",
+      venue: "Carnivore Grounds",
+      description: "Experience the diverse culinary delights from across Kenya and beyond.",
+      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+    }
+  ]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  return (
+    <>
+      <div style={{
+        backgroundColor: darkMode ? '#2d3748' : '#f3f4f6',
+        borderRadius: '12px',
+        padding: '1.5rem',
+        margin: '1rem 0',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        border: darkMode ? '1px solid #4a5568' : '1px solid #e2e8f0'
+      }}>
+        <h3 style={{ 
+          marginTop: 0, 
+          marginBottom: '1.5rem',
+          color: darkMode ? '#e2e8f0' : '#1e293b',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <span>🎭</span> Upcoming Events
+        </h3>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {events.slice(0, 2).map(event => (
+            <div 
+              key={event.id}
+              onClick={() => setSelectedEvent(event)}
+              style={{
+                display: 'flex',
+                gap: '1rem',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                backgroundColor: darkMode ? '#4a5568' : '#e2e8f0',
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                ':hover': {
+                  transform: 'translateY(-2px)'
+                }
+              }}
+            >
+              <img 
+                src={event.image} 
+                alt={event.name}
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '8px',
+                  objectFit: 'cover'
+                }}
+              />
+              <div>
+                <h4 style={{ 
+                  margin: '0 0 0.25rem', 
+                  color: darkMode ? '#e2e8f0' : '#1e293b'
+                }}>
+                  {event.name}
+                </h4>
+                <p style={{ 
+                  margin: '0 0 0.25rem', 
+                  fontSize: '0.9rem',
+                  color: darkMode ? '#a0aec0' : '#64748b'
+                }}>
+                  {event.venue}
+                </p>
+                <p style={{ 
+                  margin: 0, 
+                  fontSize: '0.8rem',
+                  fontWeight: '600',
+                  color: darkMode ? '#a0aec0' : '#64748b'
+                }}>
+                  {event.date}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <button 
+          onClick={() => setSelectedEvent(events[2])}
+          style={{
+            width: '100%',
+            marginTop: '1rem',
+            padding: '0.75rem',
+            backgroundColor: 'transparent',
+            border: darkMode ? '1px solid #4a5568' : '1px solid #e2e8f0',
+            borderRadius: '8px',
+            color: darkMode ? '#e2e8f0' : '#1e293b',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            ':hover': {
+              backgroundColor: darkMode ? '#4a5568' : '#e2e8f0'
+            }
+          }}
+        >
+          View More Events
+        </button>
+      </div>
+
+      {/* Event Detail Modal */}
+      {selectedEvent && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }} onClick={() => setSelectedEvent(null)}>
+          <div style={{
+            backgroundColor: darkMode ? '#2d3748' : 'white',
+            borderRadius: '12px',
+            maxWidth: '500px',
+            width: '100%',
+            overflow: 'hidden',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+          }} onClick={e => e.stopPropagation()}>
+            <img 
+              src={selectedEvent.image} 
+              alt={selectedEvent.name}
+              style={{
+                width: '100%',
+                height: '200px',
+                objectFit: 'cover'
+              }}
+            />
+            <div style={{ padding: '1.5rem' }}>
+              <div style={{ 
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '1rem'
+              }}>
+                <h3 style={{ 
+                  margin: 0,
+                  color: darkMode ? '#e2e8f0' : '#1e293b'
+                }}>
+                  {selectedEvent.name}
+                </h3>
+                <button 
+                  onClick={() => setSelectedEvent(null)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: darkMode ? '#a0aec0' : '#64748b',
+                    fontSize: '1.5rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                marginBottom: '0.5rem'
+              }}>
+                <span>📅</span>
+                <span style={{ color: darkMode ? '#a0aec0' : '#64748b' }}>
+                  {selectedEvent.date}
+                </span>
+              </div>
+              
+              <div style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                marginBottom: '1.5rem'
+              }}>
+                <span>📍</span>
+                <span style={{ color: darkMode ? '#a0aec0' : '#64748b' }}>
+                  {selectedEvent.venue}
+                </span>
+              </div>
+              
+              <p style={{ 
+                color: darkMode ? '#e2e8f0' : '#1e293b',
+                lineHeight: '1.6'
+              }}>
+                {selectedEvent.description}
+              </p>
+              
+              <button 
+                style={{
+                  width: '100%',
+                  marginTop: '1.5rem',
+                  padding: '0.75rem',
+                  backgroundColor: darkMode ? '#4a5568' : '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.2s',
+                  ':hover': {
+                    opacity: 0.9
+                  }
+                }}
+              >
+                Get Tickets
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+// Main Home Component
 export default function Home() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -467,6 +883,14 @@ export default function Home() {
       desc: 'Find urban services near you',
       color: '#8b5cf6',
       details: 'Book home services, repairs, and professional help with verified providers.'
+    },
+    { 
+      name: 'Events', 
+      path: '/events', 
+      icon: '🎤', 
+      desc: 'Discover concerts, shows and happenings',
+      color: '#f59e0b',
+      details: 'Find the latest concerts, theater shows, art exhibitions and special events happening around Nairobi. Get tickets and directions.'
     }
   ];
 
@@ -644,6 +1068,7 @@ export default function Home() {
           {services.map((service) => (
             <div 
               key={service.name} 
+              onClick={() => openServicePopup(service)}
               style={{ 
                 padding: '2rem 1.5rem',
                 borderRadius: '16px',
@@ -659,7 +1084,6 @@ export default function Home() {
                   boxShadow: '0 10px 20px rgba(0, 0, 0, 0.1)',
                 }
               }}
-              onClick={() => openServicePopup(service)}
             >
               <div style={{ 
                 fontSize: '3rem',
@@ -672,6 +1096,20 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Widgets Section */}
+      <section style={{
+        padding: '2rem 1rem',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        <WeatherWidget darkMode={darkMode} />
+        <EmergencyServices darkMode={darkMode} />
+        <EventsWidget darkMode={darkMode} />
       </section>
 
       {/* Featured Section */}
@@ -749,6 +1187,25 @@ export default function Home() {
             }}
           >
             ☕ Coffee Shops
+          </button>
+          <button 
+            onClick={() => navigate('/events')}
+            style={{
+              padding: '0.75rem 1.5rem',
+              borderRadius: '50px',
+              border: 'none',
+              backgroundColor: darkMode ? '#2d3748' : '#e2e8f0',
+              color: darkMode ? '#e2e8f0' : '#1e293b',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '1rem'
+            }}
+          >
+            🎤 Nairobi Events
           </button>
         </div>
       </section>
