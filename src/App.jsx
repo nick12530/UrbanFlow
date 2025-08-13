@@ -4,6 +4,7 @@ import Transport from './pages/Transport'
 import Food from './pages/Food'
 import Navbar from './components/Navbar'
 import Success from './pages/Success'
+import Assistant from './pages/Assistant'
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/transport" element={<Transport />} />
         <Route path="/food" element={<Food />} />
         <Route path="/success" element={<Success />} />
+        <Route path="/assistant" element={<Assistant />} />
       </Routes>
     </Router>
   )

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
 import dotenv from 'dotenv';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 dotenv.config();
 
@@ -16,6 +17,17 @@ const PESAPAL_BASE_URL = process.env.PESAPAL_BASE_URL || 'https://pay.pesapal.co
 const PESAPAL_CALLBACK_URL = process.env.PESAPAL_CALLBACK_URL || 'http://localhost:5173/success';
 const PESAPAL_IPN_ID = process.env.PESAPAL_IPN_ID || '';
 const PORT = process.env.PORT || 3001;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+
+// Initialize Gemini client if key is present
+let genAI = null;
+if (GEMINI_API_KEY) {
+  try {
+    genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+  } catch (e) {
+    console.warn('Failed to initialize GoogleGenerativeAI:', e.message);
+  }
+}
 
 let cachedToken = null;
 let cachedTokenExpiry = 0;
@@ -132,6 +144,41 @@ app.all('/api/pesapal/ipn', async (req, res) => {
     // Acknowledge anyway to avoid repeated retries; log error
     console.error('IPN handler error', err.message);
     return res.status(200).send('OK');
+  }
+});
+
+// Gemini chat endpoint
+app.post('/api/gemini/chat', async (req, res) => {
+  try {
+    if (!GEMINI_API_KEY || !genAI) {
+      return res.status(500).json({ error: 'GEMINI_API_KEY is not configured on the server' });
+    }
+    const { prompt, history = [], model = 'gemini-1.5-flash', systemInstruction } = req.body || {};
+    if (!prompt || typeof prompt !== 'string') {
+      return res.status(400).json({ error: 'Missing prompt' });
+    }
+
+    const generativeModel = genAI.getGenerativeModel({
+      model,
+      ...(systemInstruction ? { systemInstruction } : {}),
+    });
+
+    // Map history to Gemini chat format
+    const mappedHistory = Array.isArray(history)
+      ? history
+          .filter(m => m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'model'))
+          .map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] }))
+      : [];
+
+    const chat = generativeModel.startChat({ history: mappedHistory });
+    const result = await chat.sendMessage(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    return res.json({ text });
+  } catch (err) {
+    console.error('Gemini chat error', err.message, err.response?.data || '');
+    return res.status(500).json({ error: 'Failed to generate response', details: err.response?.data || err.message });
   }
 });
 

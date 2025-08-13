@@ -6,6 +6,7 @@ export default function Navbar() {
       <NavLink to="/">Home</NavLink>
       <NavLink to="/transport">Transport</NavLink>
       <NavLink to="/food">Food</NavLink>
+      <NavLink to="/assistant">Assistant</NavLink>
     </nav>
   );
 }
