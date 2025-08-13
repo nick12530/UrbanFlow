@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FiShoppingCart, FiUser, FiCreditCard, FiHome, FiPhone, FiMail } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiCreditCard, FiHome, FiPhone, FiMail, FiClock, FiDollarSign } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
+import axios from 'axios';
 
 const Checkout = ({ cartItems, onClose, restaurant }) => {
   // State for form fields
@@ -27,8 +28,12 @@ const Checkout = ({ cartItems, onClose, restaurant }) => {
     }));
   };
 
+  // Pesapal iframe state
+  const [pesapalUrl, setPesapalUrl] = useState('');
+  const [orderTrackingId, setOrderTrackingId] = useState('');
+
   // Handle payment submission
-  const handlePayment = (e) => {
+  const handlePayment = async (e) => {
     e.preventDefault();
     
     // Validate form
@@ -37,57 +42,52 @@ const Checkout = ({ cartItems, onClose, restaurant }) => {
       return;
     }
 
-    // Initialize Flutterwave payment
-    if (window.FlutterwaveCheckout) {
-      const flutterwaveConfig = {
-        public_key: 'YOUR_FLUTTERWAVE_PUBLIC_KEY',
-        tx_ref: `NB-${Date.now()}`,
+    try {
+      const { data } = await axios.post('http://localhost:3001/api/pesapal/order', {
         amount: total,
         currency: 'KES',
-        payment_options: 'mobilemoney,card',
+        description: `Payment for order from ${restaurant?.name || 'market'}`,
+        restaurantName: restaurant?.name,
         customer: {
-          email: formData.email || 'customer@example.com',
-          phone_number: formData.phone,
           name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
         },
-        customizations: {
-          title: 'Nairobi Bites & Delights',
-          description: `Payment for order from ${restaurant?.name || 'market'}`,
-          logo: 'https://your-logo-url.com/logo.png',
-        },
-        callback: function(response) {
-          // Handle successful payment
-          console.log('Payment response:', response);
-          if (response.status === 'successful') {
-            alert('Payment successful! Your order is being processed.');
-            // Here you would typically send the order to your backend
-            onClose();
-          }
-        },
-        onclose: function() {
-          // Handle when modal is closed
-          console.log('Payment modal closed');
-        }
-      };
-
-      // Initialize payment
-      window.FlutterwaveCheckout(flutterwaveConfig);
-    } else {
-      alert('Payment processor not loaded. Please try again.');
+      });
+      if (data.redirect_url) {
+        setPesapalUrl(data.redirect_url);
+        setOrderTrackingId(data.order_tracking_id || '');
+      } else {
+        alert('Failed to start payment.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Payment failed to initialize. Check server logs.');
     }
   };
 
-  // Load Flutterwave script
+  // Poll for Pesapal status if we have a tracking id
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.flutterwave.com/v3.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+    if (!orderTrackingId) return;
+    const interval = setInterval(async () => {
+      try {
+        const { data } = await axios.get(`http://localhost:3001/api/pesapal/status/${orderTrackingId}`);
+        if (data.payment_status_description === 'COMPLETED' || data.status_code === 1) {
+          clearInterval(interval);
+          alert('Payment successful! Your order is being processed.');
+          onClose();
+        }
+        if (data.payment_status_description === 'FAILED') {
+          clearInterval(interval);
+          alert('Payment failed.');
+        }
+      } catch (e) {
+        // ignore intermittent errors while polling
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [orderTrackingId]);
 
   return (
     <div style={styles.overlay}>
@@ -278,6 +278,17 @@ const Checkout = ({ cartItems, onClose, restaurant }) => {
               <button type="submit" style={styles.payButton}>
                 Pay Ksh {total}
               </button>
+
+              {pesapalUrl && (
+                <div style={{ marginTop: '20px' }}>
+                  <h4 style={{ margin: '0 0 10px 0' }}>Complete Payment</h4>
+                  <iframe
+                    title="Pesapal Payment"
+                    src={pesapalUrl}
+                    style={{ width: '100%', height: '520px', border: '1px solid #eee', borderRadius: '8px' }}
+                  />
+                </div>
+              )}
 
               <div style={styles.contactInfo}>
                 <p style={styles.contactText}>

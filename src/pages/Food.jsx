@@ -15,6 +15,7 @@ import {
   MdStorefront, MdLocalCafe, MdLocalDining, MdFastfood 
 } from 'react-icons/md';
 import { IoFastFoodOutline } from 'react-icons/io5';
+import Checkout from './Checkout';
 
 const Food = () => {
   // STATE
@@ -24,6 +25,9 @@ const Food = () => {
   const [favorites, setFavorites] = useState([]);
   const [activeCuisine, setActiveCuisine] = useState('all');
   const [popupItem, setPopupItem] = useState(null);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [checkoutRestaurant, setCheckoutRestaurant] = useState(null);
+  const [checkoutCartItems, setCheckoutCartItems] = useState([]);
   const placeOrder = (restaurant) => {
   if (restaurant.orderLink) {
     // Open restaurant's ordering page in new tab
@@ -33,6 +37,25 @@ const Food = () => {
     alert(`Online ordering not available for ${restaurant.name}. Please call them directly at ${restaurant.contact}`);
   }
 };
+
+  const startCheckout = (restaurant) => {
+    if (!restaurant) return;
+    let amount = 500;
+    if (restaurant.menu && restaurant.menu.length > 0) {
+      const firstCategory = restaurant.menu[0];
+      if (firstCategory.items && firstCategory.items.length > 0) {
+        const priceStr = firstCategory.items[0].price || '';
+        const parsed = parseInt(String(priceStr).replace(/\D/g, ''), 10);
+        if (!Number.isNaN(parsed) && parsed > 0) amount = parsed;
+      }
+    } else if (restaurant.minOrder) {
+      const parsed = parseInt(String(restaurant.minOrder).replace(/\D/g, ''), 10);
+      if (!Number.isNaN(parsed) && parsed > 0) amount = parsed;
+    }
+    setCheckoutCartItems([{ name: 'Order', price: amount, quantity: 1 }]);
+    setCheckoutRestaurant(restaurant);
+    setShowCheckout(true);
+  };
 
   // RESTAURANT DATA - 12 total restaurants
   const restaurants = [
@@ -1080,6 +1103,16 @@ const Food = () => {
                     >
                       <FaWhatsapp /> WhatsApp
                     </a>
+                    <button
+                      style={{
+                        ...styles.contactButton,
+                        background: '#2563eb',
+                        ':hover': hoverStyles.contactButtonHover
+                      }}
+                      onClick={() => startCheckout(popupItem)}
+                    >
+                      Pay Now
+                    </button>
                   </div>
                 </div>
               </>
@@ -1112,6 +1145,14 @@ const Food = () => {
             )}
           </div>
         </div>
+      )}
+
+      {showCheckout && (
+        <Checkout 
+          cartItems={checkoutCartItems} 
+          restaurant={checkoutRestaurant}
+          onClose={() => setShowCheckout(false)}
+        />
       )}
     </div>
   );
