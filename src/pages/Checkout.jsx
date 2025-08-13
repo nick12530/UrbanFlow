@@ -32,6 +32,9 @@ const Checkout = ({ cartItems, onClose, restaurant }) => {
   const [pesapalUrl, setPesapalUrl] = useState('');
   const [orderTrackingId, setOrderTrackingId] = useState('');
 
+  // Determine API base (use same-origin by default, override in local dev with VITE_API_BASE_URL)
+  const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+
   // Handle payment submission
   const handlePayment = async (e) => {
     e.preventDefault();
@@ -43,7 +46,7 @@ const Checkout = ({ cartItems, onClose, restaurant }) => {
     }
 
     try {
-      const { data } = await axios.post('http://localhost:3001/api/pesapal/order', {
+      const { data } = await axios.post(`${apiBase}/api/pesapal/order`, {
         amount: total,
         currency: 'KES',
         description: `Payment for order from ${restaurant?.name || 'market'}`,
@@ -72,7 +75,7 @@ const Checkout = ({ cartItems, onClose, restaurant }) => {
     if (!orderTrackingId) return;
     const interval = setInterval(async () => {
       try {
-        const { data } = await axios.get(`http://localhost:3001/api/pesapal/status/${orderTrackingId}`);
+        const { data } = await axios.get(`${apiBase}/api/pesapal/status/${orderTrackingId}`);
         if (data.payment_status_description === 'COMPLETED' || data.status_code === 1) {
           clearInterval(interval);
           alert('Payment successful! Your order is being processed.');
