@@ -13,7 +13,7 @@ const PESAPAL_CONSUMER_KEY = process.env.PESAPAL_CONSUMER_KEY || '';
 const PESAPAL_CONSUMER_SECRET = process.env.PESAPAL_CONSUMER_SECRET || '';
 // Default to LIVE base URL; override with env if needed
 const PESAPAL_BASE_URL = process.env.PESAPAL_BASE_URL || 'https://pay.pesapal.com/v3';
-const PESAPAL_CALLBACK_URL = process.env.PESAPAL_CALLBACK_URL || 'http://localhost:5173';
+const PESAPAL_CALLBACK_URL = process.env.PESAPAL_CALLBACK_URL || 'http://localhost:5173/success';
 const PESAPAL_IPN_ID = process.env.PESAPAL_IPN_ID || '';
 const PORT = process.env.PORT || 3001;
 

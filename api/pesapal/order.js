@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       currency,
       amount: Number(amount),
       description: description || `Payment for ${restaurantName || 'UrbanFlow'} order`,
-      callback_url: PESAPAL_CALLBACK_URL || `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}`,
+      callback_url: PESAPAL_CALLBACK_URL || `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/success`,
       cancellation_url: PESAPAL_CALLBACK_URL || `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}`,
       notification_id: PESAPAL_IPN_ID,
       billing_address: {
