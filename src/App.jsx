@@ -8,7 +8,6 @@ import Assistant from './pages/Assistant'
 import Login from './pages/Login'
 import { useAuth } from './context/AuthContext'
 
-
 function RequireAuth({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -28,6 +27,8 @@ function App() {
         <Route path="/success" element={<Success />} />
         <Route path="/assistant" element={<RequireAuth><Assistant /></RequireAuth>} />
         <Route path="/login" element={<Login />} />
+        {/* Add a catch-all route for better UX */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   )

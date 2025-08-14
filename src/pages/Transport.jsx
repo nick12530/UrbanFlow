@@ -1614,7 +1614,7 @@ export default function UrbanFlow() {
       {/* Header */}
       <header className="header">
         <h1 className="app-title">
-          <span>Urban</span> Flow
+          <span>UrbanFlow</span> Transport
           <button 
             className="theme-toggle"
             onClick={() => setDarkMode(!darkMode)}
@@ -1623,7 +1623,7 @@ export default function UrbanFlow() {
             {darkMode ? <FiSun /> : <FiMoon />}
           </button>
         </h1>
-        <p className="app-subtitle">Nairobi's Transport & Services Network</p>
+        <p className="app-subtitle">Nairobi's Complete Transport & Services Network</p>
         
         {/* Search Bar */}
         <div className="search-container">

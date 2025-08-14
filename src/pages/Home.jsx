@@ -858,39 +858,44 @@ export default function Home() {
       icon: '🚌', 
       desc: 'Plan your multi-modal journey across the city',
       color: '#3b82f6',
-      details: 'Find the best routes combining metro, buses, and bikes. Real-time updates and ticket purchasing available.'
+      details: 'Find the best routes combining metro, buses, and bikes. Real-time updates and ticket purchasing available.',
+      features: ['Route Planning', 'Real-time Updates', 'Multi-modal Options', 'Ticket Booking']
     },
     { 
-      name: 'Food Delivery', 
+      name: 'Food & Markets', 
       path: '/food', 
       icon: '🍔', 
-      desc: 'Discover local restaurants and cafes',
+      desc: 'Discover local restaurants and fresh markets',
       color: '#ef4444',
-      details: 'Order from hundreds of restaurants with special discounts. Track your delivery in real-time.'
+      details: 'Order from hundreds of restaurants with special discounts. Explore local markets for fresh produce and crafts.',
+      features: ['Restaurant Delivery', 'Local Markets', 'Fresh Produce', 'Cultural Crafts']
     },
     { 
-      name: 'Groceries', 
-      path: '/food', 
-      icon: '🛒', 
-      desc: 'Get groceries delivered in minutes',
-      color: '#10b981',
-      details: 'Same-day delivery from local supermarkets. Schedule recurring orders for essentials.'
-    },
-    { 
-      name: 'Services', 
-      path: '/food', 
-      icon: '🛠️', 
-      desc: 'Find urban services near you',
+      name: 'AI Assistant', 
+      path: '/assistant', 
+      icon: '🤖', 
+      desc: 'Get personalized urban living guidance',
       color: '#8b5cf6',
-      details: 'Book home services, repairs, and professional help with verified providers.'
+      details: 'Your AI companion for navigating city life, finding services, and getting personalized recommendations.',
+      features: ['24/7 Support', 'Personalized Tips', 'Service Discovery', 'Smart Recommendations']
     },
     { 
-      name: 'Events', 
-      path: '/events', 
-      icon: '🎤', 
+      name: 'City Services', 
+      path: '/transport', 
+      icon: '🏛️', 
+      desc: 'Access essential urban services',
+      color: '#10b981',
+      details: 'Find government services, utilities, and essential city resources all in one place.',
+      features: ['Government Services', 'Utilities', 'Emergency Contacts', 'Local Information']
+    },
+    { 
+      name: 'Events & Culture', 
+      path: '/food', 
+      icon: '🎭', 
       desc: 'Discover concerts, shows and happenings',
       color: '#f59e0b',
-      details: 'Find the latest concerts, theater shows, art exhibitions and special events happening around Nairobi. Get tickets and directions.'
+      details: 'Find the latest concerts, theater shows, art exhibitions and special events happening around Nairobi.',
+      features: ['Event Discovery', 'Ticket Booking', 'Cultural Experiences', 'Local Entertainment']
     }
   ];
 
@@ -920,7 +925,17 @@ export default function Home() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/food?search=${encodeURIComponent(searchQuery)}`);
+      // Enhanced search functionality
+      const query = searchQuery.toLowerCase();
+      if (query.includes('food') || query.includes('restaurant') || query.includes('eat')) {
+        navigate('/food');
+      } else if (query.includes('transport') || query.includes('bus') || query.includes('taxi')) {
+        navigate('/transport');
+      } else if (query.includes('assistant') || query.includes('help') || query.includes('ai')) {
+        navigate('/assistant');
+      } else {
+        navigate(`/food?search=${encodeURIComponent(searchQuery)}`);
+      }
     }
   };
 
@@ -979,7 +994,7 @@ export default function Home() {
       <section style={{
         background: darkMode 
           ? 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)' 
-          : 'linear-gradient(135deg, #6b46c1 0%, #3b82f6 100%)',
+          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
         padding: '4rem 1rem',
         textAlign: 'center',
@@ -987,7 +1002,7 @@ export default function Home() {
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         position: 'relative',
         overflow: 'hidden',
-        height: '300px'
+        height: '350px'
       }}>
         <div style={{
           maxWidth: '800px',
@@ -1005,7 +1020,7 @@ export default function Home() {
             fontSize: '1.25rem',
             marginBottom: '2rem',
             opacity: 0.9,
-          }}>Your seamless urban living companion</p>
+          }}>Your seamless urban living companion in Nairobi</p>
           
           <form onSubmit={handleSearch} style={{
             display: 'flex',
@@ -1017,7 +1032,7 @@ export default function Home() {
           }}>
             <input
               type="text"
-              placeholder="Search for restaurants, services..."
+              placeholder="Search for restaurants, transport, services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -1061,7 +1076,7 @@ export default function Home() {
         }}>What do you need today?</h2>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '1.5rem',
           marginTop: '1rem',
         }}>
@@ -1092,7 +1107,29 @@ export default function Home() {
                 animation: 'float 3s ease-in-out infinite'
               }}>{service.icon}</div>
               <h3 style={{fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem'}}>{service.name}</h3>
-              <p style={{color: darkMode ? '#a0aec0' : '#64748b'}}>{service.desc}</p>
+              <p style={{color: darkMode ? '#a0aec0' : '#64748b', marginBottom: '1rem'}}>{service.desc}</p>
+              
+              {/* Service Features */}
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.5rem',
+                justifyContent: 'center',
+                marginTop: '1rem'
+              }}>
+                {service.features.slice(0, 2).map((feature, index) => (
+                  <span key={index} style={{
+                    fontSize: '0.8rem',
+                    backgroundColor: `${service.color}20`,
+                    color: service.color,
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '12px',
+                    fontWeight: '500'
+                  }}>
+                    {feature}
+                  </span>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -1189,7 +1226,7 @@ export default function Home() {
             ☕ Coffee Shops
           </button>
           <button 
-            onClick={() => navigate('/events')}
+            onClick={() => navigate('/assistant')}
             style={{
               padding: '0.75rem 1.5rem',
               borderRadius: '50px',
@@ -1205,7 +1242,7 @@ export default function Home() {
               fontSize: '1rem'
             }}
           >
-            🎤 Nairobi Events
+            🤖 AI Assistant
           </button>
         </div>
       </section>
@@ -1253,7 +1290,27 @@ export default function Home() {
               <span style={{ fontSize: '2.5rem', animation: 'float 3s ease-in-out infinite' }}>{selectedService.icon}</span>
               <h3 style={{fontSize: '1.8rem', fontWeight: '700', marginBottom: '1rem', color: darkMode ? '#e2e8f0' : '#1e293b'}}>{selectedService.name}</h3>
             </div>
-            <p style={{color: darkMode ? '#a0aec0' : '#64748b', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '2rem'}}>{selectedService.details}</p>
+            <p style={{color: darkMode ? '#a0aec0' : '#64748b', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '1.5rem'}}>{selectedService.details}</p>
+            
+            {/* Features List */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h4 style={{ color: darkMode ? '#e2e8f0' : '#1e293b', marginBottom: '0.5rem' }}>Key Features:</h4>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {selectedService.features.map((feature, index) => (
+                  <span key={index} style={{
+                    fontSize: '0.9rem',
+                    backgroundColor: `${selectedService.color}20`,
+                    color: selectedService.color,
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '12px',
+                    fontWeight: '500'
+                  }}>
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
             <button 
               style={{ 
                 padding: '0.75rem 1.5rem',
@@ -1264,7 +1321,8 @@ export default function Home() {
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                fontSize: '1rem'
+                fontSize: '1rem',
+                width: '100%'
               }}
               onClick={() => {
                 navigate(selectedService.path);
@@ -1310,7 +1368,7 @@ export default function Home() {
         fontSize: '0.9rem',
         marginTop: '2rem'
       }}>
-        <p>© {new Date().getFullYear()} UrbanFlow - Created by Nick</p>
+        <p>© {new Date().getFullYear()} UrbanFlow - Your Nairobi Urban Living Companion</p>
       </footer>
     </div>
   );

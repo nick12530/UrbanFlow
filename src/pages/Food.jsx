@@ -765,8 +765,8 @@ const Food = () => {
     <div style={styles.app}>
       {/* HEADER */}
       <header style={styles.header}>
-        <h1 style={styles.title}>Nairobi Bites & Delights</h1>
-        <p style={styles.subtitle}>Discover the vibrant flavors of Kenya's capital</p>
+        <h1 style={styles.title}>UrbanFlow Food & Markets</h1>
+        <p style={styles.subtitle}>Discover the vibrant flavors and fresh produce of Nairobi</p>
       </header>
 
       {/* TABS */}
