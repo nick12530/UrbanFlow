@@ -7,7 +7,7 @@ export default function Success() {
   const navigate = useNavigate();
   const [status, setStatus] = useState({ loading: true, data: null, error: '' });
 
-  const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+  const apiBase = import.meta.env?.VITE_API_BASE_URL || '';
 
   const orderTrackingId = useMemo(() => {
     const params = new URLSearchParams(location.search);

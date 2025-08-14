@@ -33,7 +33,7 @@ const Checkout = ({ cartItems, onClose, restaurant }) => {
   const [orderTrackingId, setOrderTrackingId] = useState('');
 
   // Determine API base (use same-origin by default, override in local dev with VITE_API_BASE_URL)
-  const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+  const apiBase = import.meta.env?.VITE_API_BASE_URL || '';
 
   // Handle payment submission
   const handlePayment = async (e) => {

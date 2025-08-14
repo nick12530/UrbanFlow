@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { FiSend, FiMessageCircle, FiUser, FiBot } from 'react-icons/fi';
+import { FiSend, FiMessageCircle, FiUser, FiMessageSquare } from 'react-icons/fi';
 
 export default function Assistant() {
   const [messages, setMessages] = useState([
@@ -32,7 +32,7 @@ export default function Assistant() {
     setLoading(true);
 
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+      const apiBase = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:3001';
       const res = await fetch(`${apiBase}/api/gemini/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -276,7 +276,7 @@ export default function Assistant() {
                 ...styles.avatar,
                 ...(m.role === 'user' ? styles.userAvatar : styles.botAvatar)
               }}>
-                {m.role === 'user' ? <FiUser size={16} /> : <FiBot size={16} />}
+                {m.role === 'user' ? <FiUser size={16} /> : <FiMessageSquare size={16} />}
               </div>
               <div style={{
                 ...styles.messageContent,
@@ -290,7 +290,7 @@ export default function Assistant() {
           {loading && (
             <div style={styles.message}>
               <div style={{...styles.avatar, ...styles.botAvatar}}>
-                <FiBot size={16} />
+                <FiMessageSquare size={16} />
               </div>
               <div style={{...styles.messageContent, ...styles.botContent}}>
                 <div style={styles.loading}>

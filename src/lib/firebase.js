@@ -2,12 +2,12 @@ import { getApps, initializeApp, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  apiKey: import.meta.env?.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env?.VITE_FIREBASE_PROJECT_ID,
+  appId: import.meta.env?.VITE_FIREBASE_APP_ID,
+  storageBucket: import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID,
 };
 
 // Initialize app only when required env vars are present to avoid runtime crashes
@@ -18,7 +18,7 @@ const requiredKeys = [
   'VITE_FIREBASE_APP_ID',
 ];
 
-const hasAllConfig = requiredKeys.every((key) => Boolean(import.meta.env[key]));
+const hasAllConfig = requiredKeys.every((key) => Boolean(import.meta.env?.[key]));
 
 let app = null;
 if (getApps().length) {
