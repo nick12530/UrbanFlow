@@ -16,6 +16,11 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth) {
+      // No Firebase config present; treat as unauthenticated but loaded
+      setLoading(false);
+      return () => {};
+    }
     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       setUser(authUser);
       setLoading(false);
@@ -23,9 +28,17 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
-  const login = (email, password) => signInWithEmailAndPassword(auth, email, password);
+  const ensureAuth = () => {
+    if (!auth) throw new Error('Authentication is not configured. Missing Firebase environment variables.');
+  };
+
+  const login = (email, password) => {
+    ensureAuth();
+    return signInWithEmailAndPassword(auth, email, password);
+  };
 
   const register = async (email, password, displayName) => {
+    ensureAuth();
     const credentials = await createUserWithEmailAndPassword(auth, email, password);
     if (displayName) {
       try {
@@ -37,9 +50,15 @@ export function AuthProvider({ children }) {
     return credentials;
   };
 
-  const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
+  const loginWithGoogle = () => {
+    ensureAuth();
+    return signInWithPopup(auth, googleProvider);
+  };
 
-  const logout = () => signOut(auth);
+  const logout = () => {
+    ensureAuth();
+    return signOut(auth);
+  };
 
   const value = { user, loading, login, register, loginWithGoogle, logout };
   return (
