@@ -1,11 +1,21 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Transport from './pages/Transport'
 import Food from './pages/Food'
 import Navbar from './components/Navbar'
 import Success from './pages/Success'
 import Assistant from './pages/Assistant'
+import Login from './pages/Login'
+import { useAuth } from './context/AuthContext'
 
+
+function RequireAuth({ children }) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  return children;
+}
 
 function App() {
   return (
@@ -13,10 +23,11 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/transport" element={<Transport />} />
-        <Route path="/food" element={<Food />} />
+        <Route path="/transport" element={<RequireAuth><Transport /></RequireAuth>} />
+        <Route path="/food" element={<RequireAuth><Food /></RequireAuth>} />
         <Route path="/success" element={<Success />} />
-        <Route path="/assistant" element={<Assistant />} />
+        <Route path="/assistant" element={<RequireAuth><Assistant /></RequireAuth>} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   )
