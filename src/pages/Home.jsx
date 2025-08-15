@@ -433,90 +433,217 @@ const WeatherWidget = ({ darkMode }) => {
     condition: 'Partly Cloudy',
     humidity: 65,
     wind: 12,
-    icon: '⛅'
+    feelsLike: 24,
+    icon: '⛅',
+    location: 'Nairobi, Kenya',
+    time: new Date().toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    })
   });
+
+  // Mock weather data that changes every time
+  const weatherConditions = [
+    { temp: 18, condition: 'Partly Cloudy', humidity: 72, wind: 8, feelsLike: 20, icon: '⛅' },
+    { temp: 25, condition: 'Sunny', humidity: 45, wind: 15, feelsLike: 27, icon: '☀️' },
+    { temp: 16, condition: 'Rainy', humidity: 88, wind: 20, feelsLike: 14, icon: '🌧️' },
+    { temp: 22, condition: 'Cloudy', humidity: 68, wind: 12, feelsLike: 24, icon: '☁️' },
+    { temp: 28, condition: 'Clear Night', humidity: 55, wind: 6, feelsLike: 30, icon: '🌙' },
+    { temp: 19, condition: 'Misty', humidity: 85, wind: 5, feelsLike: 21, icon: '🌫️' },
+    { temp: 31, condition: 'Hot & Sunny', humidity: 38, wind: 18, feelsLike: 35, icon: '🔥' },
+    { temp: 14, condition: 'Stormy', humidity: 92, wind: 25, feelsLike: 12, icon: '⛈️' }
+  ];
+
+  // Update weather randomly every 30 seconds
+  useEffect(() => {
+    const updateWeather = () => {
+      const randomWeather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+      setWeather(prev => ({
+        ...prev,
+        ...randomWeather,
+        time: new Date().toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: true 
+        })
+      }));
+    };
+
+    const interval = setInterval(updateWeather, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div style={{
-      backgroundColor: darkMode ? '#2d3748' : '#f3f4f6',
-      borderRadius: '12px',
+      background: darkMode 
+        ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' 
+        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+      borderRadius: '16px',
       padding: '1.5rem',
       margin: '1rem 0',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-      border: darkMode ? '1px solid #4a5568' : '1px solid #e2e8f0'
+      boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+      border: darkMode ? '1px solid #475569' : '1px solid #cbd5e1',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      <h3 style={{ 
-        marginTop: 0, 
-        marginBottom: '1rem',
-        color: darkMode ? '#e2e8f0' : '#1e293b',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem'
-      }}>
-        <span>🌤️</span> Nairobi Weather
-      </h3>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        <span style={{ fontSize: '3rem' }}>{weather.icon}</span>
-        <div>
-          <p style={{ 
-            margin: 0, 
-            fontSize: '2rem', 
-            fontWeight: 'bold', 
-            color: darkMode ? '#e2e8f0' : '#1e293b' 
+      {/* Weather background pattern */}
+      <div style={{
+        position: 'absolute',
+        top: '-50%',
+        right: '-50%',
+        width: '200%',
+        height: '200%',
+        background: darkMode 
+          ? 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)'
+          : 'radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%)',
+        animation: 'rotate 20s linear infinite'
+      }}></div>
+
+      <div style={{ position: 'relative', zIndex: 2 }}>
+        {/* Header with location and time */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: '1rem'
+        }}>
+          <h3 style={{ 
+            margin: 0,
+            color: darkMode ? '#e2e8f0' : '#1e293b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '1.1rem',
+            fontWeight: '600'
           }}>
-            {weather.temp}°C
-          </p>
-          <p style={{ 
-            margin: '0.25rem 0 0', 
-            color: darkMode ? '#a0aec0' : '#64748b',
-            fontSize: '0.9rem'
+            <span>🌤️</span> Weather
+          </h3>
+          <span style={{
+            fontSize: '0.8rem',
+            color: darkMode ? '#94a3b8' : '#64748b',
+            backgroundColor: darkMode ? 'rgba(148, 163, 184, 0.1)' : 'rgba(100, 116, 139, 0.1)',
+            padding: '0.25rem 0.5rem',
+            borderRadius: '12px'
           }}>
-            {weather.condition}
-          </p>
+            {weather.time}
+          </span>
         </div>
-      </div>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        marginTop: '1.5rem',
-        paddingTop: '1rem',
-        borderTop: darkMode ? '1px solid #4a5568' : '1px solid #e2e8f0'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ 
-            margin: '0 0 0.25rem', 
-            fontSize: '0.8rem',
-            color: darkMode ? '#a0aec0' : '#64748b'
-          }}>Humidity</p>
-          <p style={{ 
-            margin: 0, 
-            fontWeight: '600',
-            color: darkMode ? '#e2e8f0' : '#1e293b'
-          }}>{weather.humidity}%</p>
+
+        {/* Location */}
+        <p style={{
+          margin: '0 0 1rem 0',
+          fontSize: '0.9rem',
+          color: darkMode ? '#94a3b8' : '#64748b',
+          fontWeight: '500'
+        }}>
+          📍 {weather.location}
+        </p>
+
+        {/* Main weather display */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
+          <div style={{
+            fontSize: '4rem',
+            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
+            animation: 'float 3s ease-in-out infinite'
+          }}>
+            {weather.icon}
+          </div>
+          <div>
+            <p style={{ 
+              margin: 0, 
+              fontSize: '2.5rem', 
+              fontWeight: 'bold', 
+              color: darkMode ? '#e2e8f0' : '#1e293b',
+              lineHeight: 1
+            }}>
+              {weather.temp}°C
+            </p>
+            <p style={{ 
+              margin: '0.25rem 0 0', 
+              color: darkMode ? '#94a3b8' : '#64748b',
+              fontSize: '1rem',
+              fontWeight: '500'
+            }}>
+              {weather.condition}
+            </p>
+          </div>
         </div>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ 
-            margin: '0 0 0.25rem', 
-            fontSize: '0.8rem',
-            color: darkMode ? '#a0aec0' : '#64748b'
-          }}>Wind</p>
-          <p style={{ 
-            margin: 0, 
-            fontWeight: '600',
-            color: darkMode ? '#e2e8f0' : '#1e293b'
-          }}>{weather.wind} km/h</p>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ 
-            margin: '0 0 0.25rem', 
-            fontSize: '0.8rem',
-            color: darkMode ? '#a0aec0' : '#64748b'
-          }}>Feels Like</p>
-          <p style={{ 
-            margin: 0, 
-            fontWeight: '600',
-            color: darkMode ? '#e2e8f0' : '#1e293b'
-          }}>{weather.temp}°C</p>
+
+        {/* Weather details grid */}
+        <div style={{ 
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '1rem',
+          paddingTop: '1rem',
+          borderTop: darkMode ? '1px solid #475569' : '1px solid #cbd5e1'
+        }}>
+          <div style={{ 
+            textAlign: 'center',
+            padding: '0.75rem',
+            backgroundColor: darkMode ? 'rgba(71, 85, 105, 0.3)' : 'rgba(203, 213, 225, 0.3)',
+            borderRadius: '12px',
+            transition: 'transform 0.2s ease'
+          }}>
+            <p style={{ 
+              margin: '0 0 0.5rem', 
+              fontSize: '0.75rem',
+              color: darkMode ? '#94a3b8' : '#64748b',
+              fontWeight: '500',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>Humidity</p>
+            <p style={{ 
+              margin: 0, 
+              fontWeight: '700',
+              color: darkMode ? '#e2e8f0' : '#1e293b',
+              fontSize: '1.1rem'
+            }}>{weather.humidity}%</p>
+          </div>
+          <div style={{ 
+            textAlign: 'center',
+            padding: '0.75rem',
+            backgroundColor: darkMode ? 'rgba(71, 85, 105, 0.3)' : 'rgba(203, 213, 225, 0.3)',
+            borderRadius: '12px',
+            transition: 'transform 0.2s ease'
+          }}>
+            <p style={{ 
+              margin: '0 0 0.5rem', 
+              fontSize: '0.75rem',
+              color: darkMode ? '#94a3b8' : '#64748b',
+              fontWeight: '500',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>Wind</p>
+            <p style={{ 
+              margin: 0, 
+              fontWeight: '700',
+              color: darkMode ? '#e2e8f0' : '#1e293b',
+              fontSize: '1.1rem'
+            }}>{weather.wind} km/h</p>
+          </div>
+          <div style={{ 
+            textAlign: 'center',
+            padding: '0.75rem',
+            backgroundColor: darkMode ? 'rgba(71, 85, 105, 0.3)' : 'rgba(203, 213, 225, 0.3)',
+            borderRadius: '12px',
+            transition: 'transform 0.2s ease'
+          }}>
+            <p style={{ 
+              margin: '0 0 0.5rem', 
+              fontSize: '0.75rem',
+              color: darkMode ? '#94a3b8' : '#64748b',
+              fontWeight: '500',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>Feels Like</p>
+            <p style={{ 
+              margin: 0, 
+              fontWeight: '700',
+              color: darkMode ? '#e2e8f0' : '#1e293b',
+              fontSize: '1.1rem'
+            }}>{weather.feelsLike}°C</p>
+          </div>
         </div>
       </div>
     </div>
@@ -526,72 +653,237 @@ const WeatherWidget = ({ darkMode }) => {
 // Emergency Services Component
 const EmergencyServices = ({ darkMode }) => {
   const services = [
-    { name: "Police", number: "999", icon: "👮", color: "#3b82f6" },
-    { name: "Ambulance", number: "911", icon: "🚑", color: "#ef4444" },
-    { name: "Fire Brigade", number: "999", icon: "🚒", color: "#f59e0b" },
-    { name: "Child Helpline", number: "116", icon: "🧒", color: "#10b981" }
+    { 
+      name: "Police", 
+      number: "999", 
+      icon: "👮", 
+      color: "#3b82f6",
+      description: "Emergency police response",
+      responseTime: "5-10 min"
+    },
+    { 
+      name: "Ambulance", 
+      number: "911", 
+      icon: "🚑", 
+      color: "#ef4444",
+      description: "Medical emergency response",
+      responseTime: "3-7 min"
+    },
+    { 
+      name: "Fire Brigade", 
+      number: "999", 
+      icon: "🚒", 
+      color: "#f59e0b",
+      description: "Fire and rescue services",
+      responseTime: "5-12 min"
+    },
+    { 
+      name: "Child Helpline", 
+      number: "116", 
+      icon: "🧒", 
+      color: "#10b981",
+      description: "24/7 child protection",
+      responseTime: "Immediate"
+    },
+    { 
+      name: "Traffic Police", 
+      number: "112", 
+      icon: "🚦", 
+      color: "#8b5cf6",
+      description: "Traffic incidents",
+      responseTime: "8-15 min"
+    },
+    { 
+      name: "Coast Guard", 
+      number: "113", 
+      icon: "⚓", 
+      color: "#06b6d4",
+      description: "Maritime emergencies",
+      responseTime: "10-20 min"
+    }
   ];
 
   return (
     <div style={{
-      backgroundColor: darkMode ? '#2d3748' : '#f3f4f6',
-      borderRadius: '12px',
+      background: darkMode 
+        ? 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)' 
+        : 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+      borderRadius: '16px',
       padding: '1.5rem',
       margin: '1rem 0',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-      border: darkMode ? '1px solid #4a5568' : '1px solid #e2e8f0'
+      boxShadow: '0 8px 32px rgba(220, 38, 38, 0.15)',
+      border: darkMode ? '1px solid #dc2626' : '1px solid #fecaca',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      <h3 style={{ 
-        marginTop: 0, 
-        marginBottom: '1.5rem',
-        color: darkMode ? '#e2e8f0' : '#1e293b',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem'
-      }}>
-        <span>🚨</span> Emergency Contacts
-      </h3>
-      <div style={{ 
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '1rem'
-      }}>
-        {services.map((service) => (
-          <a 
-            key={service.name}
-            href={`tel:${service.number}`}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '1rem',
-              borderRadius: '8px',
-              backgroundColor: darkMode ? '#4a5568' : '#e2e8f0',
-              color: darkMode ? '#e2e8f0' : '#1e293b',
-              textDecoration: 'none',
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              ':hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-              }
-            }}
-          >
-            <span style={{ 
-              fontSize: '1.8rem',
-              marginBottom: '0.5rem'
-            }}>{service.icon}</span>
-            <span style={{ 
-              fontWeight: '600',
-              marginBottom: '0.25rem'
-            }}>{service.name}</span>
-            <span style={{ 
-              fontSize: '1rem',
-              fontWeight: '700',
-              color: service.color
-            }}>{service.number}</span>
-          </a>
-        ))}
+      {/* Emergency background pattern */}
+      <div style={{
+        position: 'absolute',
+        top: '-50%',
+        right: '-50%',
+        width: '200%',
+        height: '200%',
+        background: darkMode 
+          ? 'radial-gradient(circle, rgba(220, 38, 38, 0.1) 0%, transparent 70%)'
+          : 'radial-gradient(circle, rgba(220, 38, 38, 0.05) 0%, transparent 70%)',
+        animation: 'pulse 2s ease-in-out infinite'
+      }}></div>
+
+      <div style={{ position: 'relative', zIndex: 2 }}>
+        {/* Header */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '0.75rem',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{
+            fontSize: '1.5rem',
+            animation: 'pulse 1.5s ease-in-out infinite'
+          }}>
+            🚨
+          </div>
+          <div>
+            <h3 style={{ 
+              margin: 0,
+              color: darkMode ? '#fecaca' : '#991b1b',
+              fontSize: '1.2rem',
+              fontWeight: '700'
+            }}>
+              Emergency Contacts
+            </h3>
+            <p style={{
+              margin: '0.25rem 0 0',
+              fontSize: '0.8rem',
+              color: darkMode ? '#fca5a5' : '#dc2626',
+              fontWeight: '500'
+            }}>
+              Tap to call emergency services
+            </p>
+          </div>
+        </div>
+
+        {/* Services Grid */}
+        <div style={{ 
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '0.75rem'
+        }}>
+          {services.map((service) => (
+            <a 
+              key={service.name}
+              href={`tel:${service.number}`}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '1rem',
+                borderRadius: '12px',
+                background: darkMode 
+                  ? 'rgba(220, 38, 38, 0.2)' 
+                  : 'rgba(255, 255, 255, 0.8)',
+                color: darkMode ? '#fecaca' : '#991b1b',
+                textDecoration: 'none',
+                transition: 'all 0.3s ease',
+                border: darkMode 
+                  ? '1px solid rgba(220, 38, 38, 0.3)' 
+                  : '1px solid rgba(220, 38, 38, 0.1)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-4px) scale(1.02)';
+                e.target.style.boxShadow = '0 12px 24px rgba(220, 38, 38, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = 'none';
+              }}
+            >
+              {/* Service icon with glow effect */}
+              <div style={{
+                fontSize: '2rem',
+                marginBottom: '0.5rem',
+                filter: `drop-shadow(0 0 8px ${service.color})`,
+                animation: 'float 2s ease-in-out infinite'
+              }}>
+                {service.icon}
+              </div>
+              
+              {/* Service name */}
+              <span style={{ 
+                fontWeight: '700',
+                marginBottom: '0.25rem',
+                fontSize: '0.9rem',
+                textAlign: 'center'
+              }}>
+                {service.name}
+              </span>
+              
+              {/* Phone number */}
+              <span style={{ 
+                fontSize: '1.1rem',
+                fontWeight: '800',
+                color: service.color,
+                marginBottom: '0.5rem'
+              }}>
+                {service.number}
+              </span>
+              
+              {/* Description */}
+              <span style={{
+                fontSize: '0.7rem',
+                textAlign: 'center',
+                color: darkMode ? '#fca5a5' : '#dc2626',
+                fontWeight: '500',
+                lineHeight: 1.2
+              }}>
+                {service.description}
+              </span>
+              
+              {/* Response time */}
+              <span style={{
+                fontSize: '0.65rem',
+                color: darkMode ? '#fca5a5' : '#dc2626',
+                fontWeight: '600',
+                marginTop: '0.25rem',
+                backgroundColor: darkMode 
+                  ? 'rgba(220, 38, 38, 0.2)' 
+                  : 'rgba(220, 38, 38, 0.1)',
+                padding: '0.2rem 0.4rem',
+                borderRadius: '8px'
+              }}>
+                {service.responseTime}
+              </span>
+            </a>
+          ))}
+        </div>
+
+        {/* Emergency notice */}
+        <div style={{
+          marginTop: '1rem',
+          padding: '0.75rem',
+          backgroundColor: darkMode 
+            ? 'rgba(220, 38, 38, 0.2)' 
+            : 'rgba(255, 255, 255, 0.9)',
+          borderRadius: '8px',
+          border: darkMode 
+            ? '1px solid rgba(220, 38, 38, 0.3)' 
+            : '1px solid rgba(220, 38, 38, 0.2)',
+          textAlign: 'center'
+        }}>
+          <p style={{
+            margin: 0,
+            fontSize: '0.75rem',
+            color: darkMode ? '#fca5a5' : '#991b1b',
+            fontWeight: '600'
+          }}>
+            ⚠️ For life-threatening emergencies, call 999 immediately
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -603,29 +895,103 @@ const EventsWidget = ({ darkMode }) => {
     {
       id: 1,
       name: "Nairobi Jazz Festival",
-      date: "2023-08-15",
-      venue: "KICC",
-      description: "Annual jazz festival featuring local and international artists. A celebration of African jazz heritage.",
-      image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+      date: "2024-12-15",
+      time: "7:00 PM",
+      venue: "KICC Convention Centre",
+      description: "Annual jazz festival featuring local and international artists. A celebration of African jazz heritage with performances from Grammy-winning musicians.",
+      image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      category: "Music",
+      price: "KSh 2,500",
+      organizer: "Nairobi Arts Council",
+      capacity: "2,000 people"
     },
     {
       id: 2,
       name: "Kenya National Theatre Play",
-      date: "2023-08-20",
+      date: "2024-12-20",
+      time: "6:30 PM",
       venue: "Kenya National Theatre",
-      description: "Award-winning theatrical performance showcasing Kenya's rich cultural stories.",
-      image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+      description: "Award-winning theatrical performance showcasing Kenya's rich cultural stories. Directed by acclaimed director John Sibi-Okumu.",
+      image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      category: "Theatre",
+      price: "KSh 1,800",
+      organizer: "Kenya National Theatre",
+      capacity: "500 people"
     },
     {
       id: 3,
       name: "Nairobi Food Festival",
-      date: "2023-09-05",
+      date: "2024-12-25",
+      time: "12:00 PM",
       venue: "Carnivore Grounds",
-      description: "Experience the diverse culinary delights from across Kenya and beyond.",
-      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+      description: "Experience the diverse culinary delights from across Kenya and beyond. Food tasting, cooking demonstrations, and live entertainment.",
+      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      category: "Food & Culture",
+      price: "KSh 3,000",
+      organizer: "Kenya Tourism Board",
+      capacity: "5,000 people"
+    },
+    {
+      id: 4,
+      name: "Tech Innovation Summit",
+      date: "2024-12-28",
+      time: "9:00 AM",
+      venue: "Nairobi Innovation Hub",
+      description: "Join tech leaders, entrepreneurs, and innovators for a day of networking, workshops, and cutting-edge technology demonstrations.",
+      image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      category: "Technology",
+      price: "KSh 5,000",
+      organizer: "Nairobi Tech Community",
+      capacity: "1,000 people"
+    },
+    {
+      id: 5,
+      name: "Art Exhibition: Modern Africa",
+      date: "2024-12-30",
+      time: "10:00 AM",
+      venue: "Nairobi Gallery",
+      description: "Contemporary African art exhibition featuring works from emerging and established artists across the continent.",
+      image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      category: "Art",
+      price: "Free Entry",
+      organizer: "Nairobi Arts Foundation",
+      capacity: "300 people"
+    },
+    {
+      id: 6,
+      name: "Sports & Fitness Expo",
+      date: "2025-01-05",
+      time: "8:00 AM",
+      venue: "Nyayo National Stadium",
+      description: "Annual sports and fitness expo featuring equipment demonstrations, fitness challenges, and wellness workshops.",
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      category: "Sports",
+      price: "KSh 1,500",
+      organizer: "Kenya Sports Federation",
+      capacity: "10,000 people"
     }
   ]);
+  
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [currentEventIndex, setCurrentEventIndex] = useState(0);
+
+  // Rotate through events every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentEventIndex(prev => (prev + 1) % events.length);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [events.length]);
+
+  // Format date for display
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
 
   return (
     <>
@@ -648,79 +1014,221 @@ const EventsWidget = ({ darkMode }) => {
           <span>🎭</span> Upcoming Events
         </h3>
         
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {events.slice(0, 2).map(event => (
+        {/* Featured Event Carousel */}
+        <div style={{ 
+          position: 'relative',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{
+            position: 'relative',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+            cursor: 'pointer'
+          }}
+          onClick={() => setSelectedEvent(events[currentEventIndex])}
+          >
+            {/* Event Image */}
+            <img 
+              src={events[currentEventIndex].image} 
+              alt={events[currentEventIndex].name}
+              style={{
+                width: '100%',
+                height: '200px',
+                objectFit: 'cover',
+                transition: 'transform 0.3s ease'
+              }}
+            />
+            
+            {/* Event Overlay */}
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+              padding: '1.5rem',
+              color: 'white'
+            }}>
+              {/* Category Badge */}
+              <span style={{
+                display: 'inline-block',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '20px',
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                marginBottom: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                {events[currentEventIndex].category}
+              </span>
+              
+              {/* Event Title */}
+              <h4 style={{ 
+                margin: '0 0 0.5rem', 
+                fontSize: '1.2rem',
+                fontWeight: '700',
+                lineHeight: 1.2
+              }}>
+                {events[currentEventIndex].name}
+              </h4>
+              
+              {/* Event Details */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                fontSize: '0.85rem',
+                opacity: 0.9
+              }}>
+                <span>📅 {formatDate(events[currentEventIndex].date)}</span>
+                <span>🕐 {events[currentEventIndex].time}</span>
+                <span>📍 {events[currentEventIndex].venue}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Carousel Indicators */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            marginTop: '1rem'
+          }}>
+            {events.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentEventIndex(index)}
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  backgroundColor: index === currentEventIndex 
+                    ? (darkMode ? '#3b82f6' : '#1e40af')
+                    : (darkMode ? '#4a5568' : '#cbd5e1'),
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Event List */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {events.slice(0, 3).map((event, index) => (
             <div 
               key={event.id}
               onClick={() => setSelectedEvent(event)}
               style={{
                 display: 'flex',
-                gap: '1rem',
+                gap: '0.75rem',
                 padding: '0.75rem',
-                borderRadius: '8px',
-                backgroundColor: darkMode ? '#4a5568' : '#e2e8f0',
+                borderRadius: '12px',
+                backgroundColor: darkMode ? 'rgba(71, 85, 105, 0.3)' : 'rgba(203, 213, 225, 0.3)',
                 cursor: 'pointer',
-                transition: 'transform 0.2s',
-                ':hover': {
-                  transform: 'translateY(-2px)'
-                }
+                transition: 'all 0.3s ease',
+                border: darkMode ? '1px solid rgba(71, 85, 105, 0.2)' : '1px solid rgba(203, 213, 225, 0.2)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.backgroundColor = darkMode ? 'rgba(71, 85, 105, 0.5)' : 'rgba(203, 213, 225, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.backgroundColor = darkMode ? 'rgba(71, 85, 105, 0.3)' : 'rgba(203, 213, 225, 0.3)';
               }}
             >
               <img 
                 src={event.image} 
                 alt={event.name}
                 style={{
-                  width: '80px',
-                  height: '80px',
+                  width: '60px',
+                  height: '60px',
                   borderRadius: '8px',
-                  objectFit: 'cover'
+                  objectFit: 'cover',
+                  flexShrink: 0
                 }}
               />
-              <div>
-                <h4 style={{ 
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h5 style={{ 
                   margin: '0 0 0.25rem', 
-                  color: darkMode ? '#e2e8f0' : '#1e293b'
+                  color: darkMode ? '#e2e8f0' : '#1e293b',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  lineHeight: 1.2
                 }}>
                   {event.name}
-                </h4>
+                </h5>
                 <p style={{ 
                   margin: '0 0 0.25rem', 
-                  fontSize: '0.9rem',
-                  color: darkMode ? '#a0aec0' : '#64748b'
+                  fontSize: '0.75rem',
+                  color: darkMode ? '#94a3b8' : '#64748b',
+                  fontWeight: '500'
                 }}>
-                  {event.venue}
+                  📍 {event.venue}
                 </p>
-                <p style={{ 
-                  margin: 0, 
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  color: darkMode ? '#a0aec0' : '#64748b'
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
                 }}>
-                  {event.date}
-                </p>
+                  <span style={{ 
+                    fontSize: '0.7rem',
+                    fontWeight: '600',
+                    color: darkMode ? '#94a3b8' : '#64748b'
+                  }}>
+                    📅 {formatDate(event.date)}
+                  </span>
+                  <span style={{
+                    fontSize: '0.7rem',
+                    fontWeight: '700',
+                    color: event.price === 'Free Entry' ? '#10b981' : '#3b82f6',
+                    backgroundColor: event.price === 'Free Entry' 
+                      ? 'rgba(16, 185, 129, 0.1)' 
+                      : 'rgba(59, 130, 246, 0.1)',
+                    padding: '0.2rem 0.4rem',
+                    borderRadius: '6px'
+                  }}>
+                    {event.price}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
         </div>
         
         <button 
-          onClick={() => setSelectedEvent(events[2])}
+          onClick={() => setSelectedEvent(events[Math.floor(Math.random() * events.length)])}
           style={{
             width: '100%',
             marginTop: '1rem',
             padding: '0.75rem',
             backgroundColor: 'transparent',
             border: darkMode ? '1px solid #4a5568' : '1px solid #e2e8f0',
-            borderRadius: '8px',
+            borderRadius: '12px',
             color: darkMode ? '#e2e8f0' : '#1e293b',
             cursor: 'pointer',
-            transition: 'background-color 0.2s',
-            ':hover': {
-              backgroundColor: darkMode ? '#4a5568' : '#e2e8f0'
-            }
+            transition: 'all 0.3s ease',
+            fontWeight: '600',
+            fontSize: '0.9rem'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = darkMode ? 'rgba(71, 85, 105, 0.3)' : 'rgba(203, 213, 225, 0.3)';
+            e.target.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = 'transparent';
+            e.target.style.transform = 'translateY(0)';
           }}
         >
-          View More Events
+          🎭 View All Events ({events.length})
         </button>
       </div>
 
@@ -1373,3 +1881,35 @@ export default function Home() {
     </div>
   );
 };
+
+// Add CSS animations to the document
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+}

@@ -14,13 +14,13 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174', 'http://127.0.0.1:5175'] }));
 
 const PESAPAL_CONSUMER_KEY = process.env.PESAPAL_CONSUMER_KEY || '';
 const PESAPAL_CONSUMER_SECRET = process.env.PESAPAL_CONSUMER_SECRET || '';
 // Default to LIVE base URL; override with env if needed
 const PESAPAL_BASE_URL = process.env.PESAPAL_BASE_URL || 'https://pay.pesapal.com/v3';
-const PESAPAL_CALLBACK_URL = process.env.PESAPAL_CALLBACK_URL || 'http://localhost:5173/success';
+const PESAPAL_CALLBACK_URL = process.env.PESAPAL_CALLBACK_URL || 'http://localhost:5175/success';
 const PESAPAL_IPN_ID = process.env.PESAPAL_IPN_ID || '';
 const PORT = process.env.PORT || 3001;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
@@ -188,8 +188,23 @@ app.post('/api/gemini/chat', async (req, res) => {
   }
 });
 
+// Debug endpoint to check environment variables
+app.get('/api/debug/env', (req, res) => {
+  res.json({
+    PESAPAL_CONSUMER_KEY: PESAPAL_CONSUMER_KEY ? 'SET' : 'NOT SET',
+    PESAPAL_CONSUMER_SECRET: PESAPAL_CONSUMER_SECRET ? 'SET' : 'NOT SET',
+    PESAPAL_IPN_ID: PESAPAL_IPN_ID ? 'SET' : 'NOT SET',
+    PESAPAL_BASE_URL: PESAPAL_BASE_URL,
+    PESAPAL_CALLBACK_URL: PESAPAL_CALLBACK_URL
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Pesapal server running on http://localhost:${PORT}`);
+  console.log('Environment check:');
+  console.log('- PESAPAL_CONSUMER_KEY:', PESAPAL_CONSUMER_KEY ? 'SET' : 'NOT SET');
+  console.log('- PESAPAL_CONSUMER_SECRET:', PESAPAL_CONSUMER_SECRET ? 'SET' : 'NOT SET');
+  console.log('- PESAPAL_IPN_ID:', PESAPAL_IPN_ID ? 'SET' : 'NOT SET');
 });
 
 
