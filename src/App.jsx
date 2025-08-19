@@ -25,7 +25,7 @@ function App() {
         <Route path="/transport" element={<RequireAuth><Transport /></RequireAuth>} />
         <Route path="/food" element={<RequireAuth><Food /></RequireAuth>} />
         <Route path="/success" element={<Success />} />
-        <Route path="/assistant" element={<RequireAuth><Assistant /></RequireAuth>} />
+        <Route path="/assistant" element={<Assistant />} />
         <Route path="/login" element={<Login />} />
         {/* Add a catch-all route for better UX */}
         <Route path="*" element={<Navigate to="/" replace />} />

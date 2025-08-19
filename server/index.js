@@ -9,6 +9,12 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Basic runtime check: Gemini SDK needs Node 18+
+const [major] = process.versions.node.split('.').map(Number);
+if (Number.isFinite(major) && major < 18) {
+  console.warn('[Startup] Detected Node.js', process.versions.node, '- Gemini API requires Node 18+.');
+}
+
 // Load .env from parent directory (project root)
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
@@ -183,8 +189,13 @@ app.post('/api/gemini/chat', async (req, res) => {
 
     return res.json({ text });
   } catch (err) {
-    console.error('Gemini chat error', err.message, err.response?.data || '');
-    return res.status(500).json({ error: 'Failed to generate response', details: err.response?.data || err.message });
+    const axiosData = err.response?.data;
+    console.error('Gemini chat error', err.message, axiosData || '');
+    return res.status(500).json({
+      error: 'Failed to generate response',
+      details: typeof axiosData === 'string' ? axiosData : (axiosData?.error || err.message),
+      code: err.response?.status || undefined
+    });
   }
 });
 
@@ -195,8 +206,15 @@ app.get('/api/debug/env', (req, res) => {
     PESAPAL_CONSUMER_SECRET: PESAPAL_CONSUMER_SECRET ? 'SET' : 'NOT SET',
     PESAPAL_IPN_ID: PESAPAL_IPN_ID ? 'SET' : 'NOT SET',
     PESAPAL_BASE_URL: PESAPAL_BASE_URL,
-    PESAPAL_CALLBACK_URL: PESAPAL_CALLBACK_URL
+    PESAPAL_CALLBACK_URL: PESAPAL_CALLBACK_URL,
+    GEMINI_API_KEY: GEMINI_API_KEY ? 'SET' : 'NOT SET'
   });
+});
+
+// Simple Gemini health endpoint
+app.get('/api/debug/gemini', (req, res) => {
+  const configured = Boolean(GEMINI_API_KEY && genAI);
+  res.json({ configured, modelDefault: 'gemini-1.5-flash' });
 });
 
 app.listen(PORT, () => {
@@ -205,6 +223,7 @@ app.listen(PORT, () => {
   console.log('- PESAPAL_CONSUMER_KEY:', PESAPAL_CONSUMER_KEY ? 'SET' : 'NOT SET');
   console.log('- PESAPAL_CONSUMER_SECRET:', PESAPAL_CONSUMER_SECRET ? 'SET' : 'NOT SET');
   console.log('- PESAPAL_IPN_ID:', PESAPAL_IPN_ID ? 'SET' : 'NOT SET');
+  console.log('- GEMINI_API_KEY:', GEMINI_API_KEY ? 'SET' : 'NOT SET');
 });
 
 

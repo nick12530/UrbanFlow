@@ -28,6 +28,8 @@ const Food = () => {
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutRestaurant, setCheckoutRestaurant] = useState(null);
   const [checkoutCartItems, setCheckoutCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
+  const [cartRestaurant, setCartRestaurant] = useState(null);
   const placeOrder = (restaurant) => {
   if (restaurant.orderLink) {
     // Open restaurant's ordering page in new tab
@@ -40,20 +42,79 @@ const Food = () => {
 
   const startCheckout = (restaurant) => {
     if (!restaurant) return;
-    let amount = 500;
-    if (restaurant.menu && restaurant.menu.length > 0) {
-      const firstCategory = restaurant.menu[0];
-      if (firstCategory.items && firstCategory.items.length > 0) {
-        const priceStr = firstCategory.items[0].price || '';
-        const parsed = parseInt(String(priceStr).replace(/\D/g, ''), 10);
-        if (!Number.isNaN(parsed) && parsed > 0) amount = parsed;
-      }
-    } else if (restaurant.minOrder) {
-      const parsed = parseInt(String(restaurant.minOrder).replace(/\D/g, ''), 10);
-      if (!Number.isNaN(parsed) && parsed > 0) amount = parsed;
+    // If cart has items for this restaurant, use them; otherwise no-op
+    if (cartRestaurant && cartRestaurant.id === restaurant.id && cartItems.length > 0) {
+      setCheckoutCartItems(cartItems);
+      setCheckoutRestaurant(restaurant);
+      setShowCheckout(true);
+    } else {
+      alert('Add items to cart first. Open the restaurant and tap Add next to items.');
     }
-    setCheckoutCartItems([{ name: 'Order', price: amount, quantity: 1 }]);
-    setCheckoutRestaurant(restaurant);
+  };
+
+  // UTILITIES FOR CART
+  const parsePrice = (priceStr) => {
+    const parsed = parseInt(String(priceStr || '').replace(/\D/g, ''), 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  const openPopup = (item) => {
+    setPopupItem(item);
+    if (item.type === 'restaurant') {
+      if (!cartRestaurant || cartRestaurant.id !== item.id) {
+        setCartRestaurant(item);
+        setCartItems([]);
+      }
+    }
+  };
+
+  const getItemQty = (name) => {
+    const found = cartItems.find((ci) => ci.name === name);
+    return found ? found.quantity : 0;
+  };
+
+  const addItem = (menuItem) => {
+    if (!cartRestaurant || !popupItem || cartRestaurant.id !== popupItem.id) {
+      // Initialize cart for this restaurant
+      setCartRestaurant(popupItem);
+      setCartItems([]);
+    }
+    const price = parsePrice(menuItem.price);
+    setCartItems((prev) => {
+      const idx = prev.findIndex((ci) => ci.name === menuItem.name);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = { ...next[idx], quantity: next[idx].quantity + 1 };
+        return next;
+      }
+      return [...prev, { name: menuItem.name, price, quantity: 1 }];
+    });
+  };
+
+  const removeItem = (menuItem) => {
+    setCartItems((prev) => {
+      const idx = prev.findIndex((ci) => ci.name === menuItem.name);
+      if (idx === -1) return prev;
+      const next = [...prev];
+      const qty = next[idx].quantity - 1;
+      if (qty <= 0) {
+        next.splice(idx, 1);
+      } else {
+        next[idx] = { ...next[idx], quantity: qty };
+      }
+      return next;
+    });
+  };
+
+  const cartSubtotal = () => cartItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
+
+  const proceedToCheckout = () => {
+    if (!cartRestaurant || cartItems.length === 0) {
+      alert('Your cart is empty. Add items first.');
+      return;
+    }
+    setCheckoutCartItems(cartItems);
+    setCheckoutRestaurant(cartRestaurant);
     setShowCheckout(true);
   };
 
@@ -81,11 +142,44 @@ const Food = () => {
       orderLink: 'https://nyamamakenya.com/order-online',
       features: ['Vegetarian Options', 'Bar', 'Outdoor Seating'],
       menu: [
+        {
+          category: 'Starters',
+          items: [
+            { name: 'Beef Samosa (2pc)', price: 'Ksh 350' },
+            { name: 'Kachumbari Salad', price: 'Ksh 300' },
+            { name: 'Chicken Wings', price: 'Ksh 680' }
+          ]
+        },
         { 
           category: 'Main Dishes', 
           items: [
             { name: 'Nyama Choma Platter', price: 'Ksh 1450', popular: true },
-            { name: 'Ugali & Sukuma Wiki', price: 'Ksh 650' }
+            { name: 'Ugali & Sukuma Wiki', price: 'Ksh 650' },
+            { name: 'Goat Stew', price: 'Ksh 980' },
+            { name: 'Tilapia Fry', price: 'Ksh 1200' }
+          ]
+        },
+        {
+          category: 'Sides',
+          items: [
+            { name: 'Chapati (2pc)', price: 'Ksh 200' },
+            { name: 'Mukimo', price: 'Ksh 280' },
+            { name: 'French Fries', price: 'Ksh 300' }
+          ]
+        },
+        {
+          category: 'Desserts',
+          items: [
+            { name: 'Mandazi (3pc)', price: 'Ksh 200' },
+            { name: 'Fresh Fruit Salad', price: 'Ksh 350' }
+          ]
+        },
+        {
+          category: 'Drinks',
+          items: [
+            { name: 'Fresh Passion Juice', price: 'Ksh 300' },
+            { name: 'Soda (500ml)', price: 'Ksh 150' },
+            { name: 'Tusker Lager', price: 'Ksh 350' }
           ]
         }
       ]
@@ -106,13 +200,40 @@ const Food = () => {
       deliveryFee: 'Ksh 250',
       minOrder: 'Ksh 1500',
       features: ['All-You-Can-Eat', 'Live Grill', 'Signature Dawa Cocktails'],
-      menu: [{
-        category: 'Signature Meats',
-        items: [
-          { name: 'Beast of a Feast Platter', price: 'Ksh 2200', popular: true },
-          { name: 'Crocodile Skewers', price: 'Ksh 1800' }
-        ]
-      }]
+      menu: [
+        {
+          category: 'Signature Meats',
+          items: [
+            { name: 'Beast of a Feast Platter', price: 'Ksh 2200', popular: true },
+            { name: 'Crocodile Skewers', price: 'Ksh 1800' },
+            { name: 'Pork Ribs', price: 'Ksh 1600' },
+            { name: 'Lamb Chops', price: 'Ksh 1750' }
+          ]
+        },
+        {
+          category: 'Sides',
+          items: [
+            { name: 'Ugali', price: 'Ksh 200' },
+            { name: 'French Fries', price: 'Ksh 350' },
+            { name: 'Coleslaw', price: 'Ksh 250' }
+          ]
+        },
+        {
+          category: 'Drinks',
+          items: [
+            { name: 'Dawa Cocktail', price: 'Ksh 550', popular: true },
+            { name: 'Soft Drink', price: 'Ksh 150' },
+            { name: 'Local Beer', price: 'Ksh 350' }
+          ]
+        },
+        {
+          category: 'Desserts',
+          items: [
+            { name: 'Ice Cream Scoop', price: 'Ksh 300' },
+            { name: 'Fruit Platter', price: 'Ksh 450' }
+          ]
+        }
+      ]
     },
 
     // Fast Food Chains
@@ -140,7 +261,31 @@ const Food = () => {
           category: 'Meals', 
           items: [
             { name: '3 Piece Meal', price: 'Ksh 850', popular: true },
-            { name: 'Zinger Burger Combo', price: 'Ksh 750' }
+            { name: 'Zinger Burger Combo', price: 'Ksh 750' },
+            { name: 'Streetwise 2', price: 'Ksh 650' },
+            { name: 'Twister Combo', price: 'Ksh 700' }
+          ]
+        },
+        {
+          category: 'Wings',
+          items: [
+            { name: 'Hot Wings (6pc)', price: 'Ksh 650' },
+            { name: 'BBQ Wings (6pc)', price: 'Ksh 650' }
+          ]
+        },
+        {
+          category: 'Sides',
+          items: [
+            { name: 'Regular Fries', price: 'Ksh 250' },
+            { name: 'Coleslaw', price: 'Ksh 200' },
+            { name: 'Baked Beans', price: 'Ksh 200' }
+          ]
+        },
+        {
+          category: 'Drinks',
+          items: [
+            { name: 'Soda (500ml)', price: 'Ksh 150' },
+            { name: 'Water (500ml)', price: 'Ksh 120' }
           ]
         }
       ]
@@ -169,7 +314,29 @@ const Food = () => {
           category: 'Pizzas', 
           items: [
             { name: 'Peri-Peri Chicken Pizza', price: 'Ksh 1400', popular: true },
-            { name: 'Vegetarian Supreme', price: 'Ksh 1200' }
+            { name: 'Vegetarian Supreme', price: 'Ksh 1200' },
+            { name: 'Pepperoni', price: 'Ksh 1350' },
+            { name: 'BBQ Chicken', price: 'Ksh 1500' }
+          ]
+        },
+        {
+          category: 'Sides',
+          items: [
+            { name: 'Garlic Bread', price: 'Ksh 400' },
+            { name: 'Chicken Wings (6pc)', price: 'Ksh 700' }
+          ]
+        },
+        {
+          category: 'Desserts',
+          items: [
+            { name: 'Ice Cream Cup', price: 'Ksh 300' }
+          ]
+        },
+        {
+          category: 'Drinks',
+          items: [
+            { name: 'Soda (500ml)', price: 'Ksh 150' },
+            { name: 'Water (500ml)', price: 'Ksh 120' }
           ]
         }
       ]
@@ -198,7 +365,31 @@ const Food = () => {
           category: 'Breakfast', 
           items: [
             { name: 'Full English Breakfast', price: 'Ksh 1200', popular: true },
-            { name: 'Avocado Toast', price: 'Ksh 850' }
+            { name: 'Avocado Toast', price: 'Ksh 850' },
+            { name: 'Pancake Stack', price: 'Ksh 900' },
+            { name: 'Three-Egg Omelette', price: 'Ksh 780' }
+          ]
+        },
+        {
+          category: 'Lunch',
+          items: [
+            { name: 'Chicken Wrap', price: 'Ksh 950' },
+            { name: 'Caesar Salad', price: 'Ksh 920' }
+          ]
+        },
+        {
+          category: 'Bakery',
+          items: [
+            { name: 'Butter Croissant', price: 'Ksh 250' },
+            { name: 'Chocolate Cake Slice', price: 'Ksh 450' }
+          ]
+        },
+        {
+          category: 'Drinks',
+          items: [
+            { name: 'Caffè Latte', price: 'Ksh 350' },
+            { name: 'Cappuccino', price: 'Ksh 350' },
+            { name: 'House Tea', price: 'Ksh 200' }
           ]
         }
       ]
@@ -226,10 +417,39 @@ const Food = () => {
       features: ['Romantic Setting', 'Wine Pairings', 'Authentic Italian'],
       menu: [
         { 
+          category: 'Starters', 
+          items: [
+            { name: 'Bruschetta', price: 'Ksh 650' },
+            { name: 'Caprese Salad', price: 'Ksh 780' }
+          ]
+        },
+        { 
           category: 'Pasta', 
           items: [
             { name: 'Truffle Tagliatelle', price: 'Ksh 1800', popular: true },
-            { name: 'Spaghetti Carbonara', price: 'Ksh 1600' }
+            { name: 'Spaghetti Carbonara', price: 'Ksh 1600' },
+            { name: 'Penne Arrabbiata', price: 'Ksh 1400' }
+          ]
+        },
+        { 
+          category: 'Pizzas', 
+          items: [
+            { name: 'Margherita', price: 'Ksh 1200' },
+            { name: 'Quattro Formaggi', price: 'Ksh 1600' }
+          ]
+        },
+        { 
+          category: 'Desserts', 
+          items: [
+            { name: 'Tiramisu', price: 'Ksh 700', popular: true },
+            { name: 'Panna Cotta', price: 'Ksh 650' }
+          ]
+        },
+        { 
+          category: 'Drinks', 
+          items: [
+            { name: 'Espresso', price: 'Ksh 250' },
+            { name: 'House Red Wine (glass)', price: 'Ksh 800' }
           ]
         }
       ]
@@ -260,7 +480,29 @@ const Food = () => {
           category: 'Healthy Bowls', 
           items: [
             { name: 'Quinoa Power Bowl', price: 'Ksh 1350', popular: true },
-            { name: 'Vegan Buddha Bowl', price: 'Ksh 1250' }
+            { name: 'Vegan Buddha Bowl', price: 'Ksh 1250' },
+            { name: 'Falafel Protein Bowl', price: 'Ksh 1290' }
+          ]
+        },
+        {
+          category: 'Burgers',
+          items: [
+            { name: 'Vegan Burger', price: 'Ksh 980' },
+            { name: 'Portobello Burger', price: 'Ksh 1050' }
+          ]
+        },
+        {
+          category: 'Smoothies',
+          items: [
+            { name: 'Mango Spinach', price: 'Ksh 450' },
+            { name: 'Berry Blast', price: 'Ksh 480' }
+          ]
+        },
+        {
+          category: 'Drinks',
+          items: [
+            { name: 'Herbal Tea', price: 'Ksh 200' },
+            { name: 'Fresh Juice', price: 'Ksh 350' }
           ]
         }
       ]
@@ -290,7 +532,28 @@ const Food = () => {
           category: 'Main Dishes', 
           items: [
             { name: 'Vegetable Curry with Rice', price: 'Ksh 1100', popular: true },
-            { name: 'Tofu Stir Fry', price: 'Ksh 950' }
+            { name: 'Tofu Stir Fry', price: 'Ksh 950' },
+            { name: 'Paneer Tikka', price: 'Ksh 1250' }
+          ]
+        },
+        {
+          category: 'Rice & Noodles',
+          items: [
+            { name: 'Vegetable Fried Rice', price: 'Ksh 850' },
+            { name: 'Veg Chow Mein', price: 'Ksh 900' }
+          ]
+        },
+        {
+          category: 'Soups',
+          items: [
+            { name: 'Tomato Soup', price: 'Ksh 500' }
+          ]
+        },
+        {
+          category: 'Drinks',
+          items: [
+            { name: 'Fresh Juice', price: 'Ksh 350' },
+            { name: 'Water (500ml)', price: 'Ksh 120' }
           ]
         }
       ]
@@ -835,7 +1098,7 @@ const Food = () => {
                 ...(item.type === 'market' ? { borderTop: '4px solid #48bb78' } : { borderTop: '4px solid #ff6b6b' }),
                 ':hover': hoverStyles.cardHover
               }}
-              onClick={() => setPopupItem(item)}
+              onClick={() => openPopup(item)}
             >
               {/* CARD IMAGE */}
               <div style={{ position: 'relative', overflow: 'hidden' }}>
@@ -1066,14 +1329,42 @@ const Food = () => {
                     <div key={index} style={{ marginBottom: '1.5rem' }}>
                       <h4 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem' }}>{category.category}</h4>
                       {category.items.map((menuItem, i) => (
-                        <div key={i} style={styles.menuItem}>
-                          <div>
+                        <div key={i} style={{...styles.menuItem, alignItems: 'center', gap: '12px'}}>
+                          <div style={{ flex: 1 }}>
                             {menuItem.name}
                             {menuItem.popular && (
                               <span style={styles.popularBadge}>Popular</span>
                             )}
                           </div>
-                          <div>{menuItem.price}</div>
+                          <div style={{ minWidth: 90, textAlign: 'right' }}>{menuItem.price}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                              onClick={() => removeItem(menuItem)}
+                              style={{
+                                border: '1px solid #e5e7eb',
+                                background: 'white',
+                                padding: '6px 10px',
+                                borderRadius: '6px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              −
+                            </button>
+                            <span style={{ minWidth: 18, textAlign: 'center' }}>{getItemQty(menuItem.name)}</span>
+                            <button
+                              onClick={() => addItem(menuItem)}
+                              style={{
+                                border: 'none',
+                                background: '#ff6b6b',
+                                color: 'white',
+                                padding: '6px 10px',
+                                borderRadius: '6px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              +
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1109,9 +1400,9 @@ const Food = () => {
                         background: '#2563eb',
                         ':hover': hoverStyles.contactButtonHover
                       }}
-                      onClick={() => startCheckout(popupItem)}
+                      onClick={proceedToCheckout}
                     >
-                      Pay Now
+                      Checkout (Ksh {cartSubtotal()})
                     </button>
                   </div>
                 </div>

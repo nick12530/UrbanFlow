@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { 
@@ -1154,7 +1154,7 @@ const BikeHireCard = ({ station, onHire }) => {
   );
 };
 
-const ItineraryPanel = ({ items, onRemove, onClear }) => {
+const ItineraryPanel = ({ items, onRemove, onClear, onSave }) => {
   return (
     <div className="itinerary-panel">
       <h3><FiCalendar size={20} /> Your Itinerary</h3>
@@ -1198,7 +1198,7 @@ const ItineraryPanel = ({ items, onRemove, onClear }) => {
             <button className="action-btn secondary-action" onClick={onClear}>
               <FiX size={16} /> Clear All
             </button>
-            <button className="action-btn primary-action">
+            <button className="action-btn primary-action" onClick={onSave}>
               <FiCalendar size={16} /> Save Itinerary
             </button>
           </div>
@@ -1208,7 +1208,7 @@ const ItineraryPanel = ({ items, onRemove, onClear }) => {
   );
 };
 
-const ServiceDetails = ({ service, onClose }) => {
+const ServiceDetails = ({ service, onClose, onAddToItinerary }) => {
   if (!service) return null;
 
   const renderTransportDetails = () => {
@@ -1392,9 +1392,28 @@ const ServiceDetails = ({ service, onClose }) => {
         </>
       )}
       
-      <button className="action-btn">
-        <MdDirections size={18} /> Get Directions
-      </button>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <button
+          className="action-btn"
+          onClick={() => {
+            if (service.location && Array.isArray(service.location)) {
+              const [lat, lng] = service.location;
+              const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+              window.open(url, '_blank');
+            }
+          }}
+        >
+          <MdDirections size={18} /> Get Directions
+        </button>
+        <button
+          className="action-btn secondary-action"
+          onClick={() => onAddToItinerary?.(service)}
+          aria-label="Add to itinerary"
+          style={{ flex: 1 }}
+        >
+          <FiCalendar size={18} /> Add to Itinerary
+        </button>
+      </div>
     </div>
   );
 };
@@ -1506,6 +1525,7 @@ export default function UrbanFlow() {
   const [darkMode, setDarkMode] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
   const [showRecentSearches, setShowRecentSearches] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState(0);
 
   const theme = darkMode ? darkTheme : lightTheme;
 
@@ -1563,6 +1583,18 @@ export default function UrbanFlow() {
     setItinerary(prev => [...prev, ...suggestedRoutes]);
   };
 
+  const addServiceToItinerary = (service) => {
+    const entry = {
+      id: Date.now(),
+      name: service.name,
+      type: service.type,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      price: service.price || undefined,
+      steps: undefined,
+    };
+    setItinerary(prev => [...prev, entry]);
+  };
+
   const handleHireBike = (station) => {
     const hireDetails = {
       id: Date.now(),
@@ -1582,6 +1614,16 @@ export default function UrbanFlow() {
 
   const clearItinerary = () => {
     setItinerary([]);
+  };
+
+  const saveItinerary = () => {
+    try {
+      localStorage.setItem('urbanflow_itinerary', JSON.stringify(itinerary));
+      setLastSavedAt(Date.now());
+      alert('Itinerary saved');
+    } catch (_) {
+      // ignore
+    }
   };
 
   const filteredServices = services[activeCategory]?.filter(service =>
@@ -1797,6 +1839,7 @@ export default function UrbanFlow() {
           <ServiceDetails 
             service={selectedService} 
             onClose={() => setSelectedService(null)}
+            onAddToItinerary={addServiceToItinerary}
           />
         )}
 
@@ -1805,6 +1848,7 @@ export default function UrbanFlow() {
           items={itinerary}
           onRemove={removeFromItinerary}
           onClear={clearItinerary}
+          onSave={saveItinerary}
         />
 
         {/* Map (Conditionally Rendered) */}
@@ -1815,6 +1859,7 @@ export default function UrbanFlow() {
               zoom={selectedService ? 15 : 13} 
               style={{ height: '100%', width: '100%' }}
             >
+              <FitBounds services={filteredServices} selected={selectedService} />
               <TileLayer
                 url={darkMode ? 
                   "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" : 
@@ -1867,4 +1912,26 @@ export default function UrbanFlow() {
       </div>
     </div>
   );
+}
+
+function FitBounds({ services, selected }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!map) return;
+    if (selected && selected.location) {
+      map.setView(selected.location, 15, { animate: true });
+      return;
+    }
+    if (services && services.length > 0) {
+      const bounds = services
+        .filter(s => Array.isArray(s.location))
+        .map(s => s.location);
+      if (bounds.length > 1) {
+        map.fitBounds(bounds, { padding: [40, 40] });
+      } else if (bounds.length === 1) {
+        map.setView(bounds[0], 13);
+      }
+    }
+  }, [map, JSON.stringify(services), selected?.id]);
+  return null;
 }

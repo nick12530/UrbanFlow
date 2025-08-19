@@ -38,7 +38,7 @@ export default function Assistant() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           prompt: userMessage, 
-          history: messages.slice(0, -1),
+          history: newMessages.slice(0, -1),
           systemInstruction: `You are UrbanFlow Assistant, a helpful AI for urban living in Nairobi, Kenya. 
           
           You help users with:
@@ -55,11 +55,13 @@ export default function Assistant() {
       });
       
       const data = await res.json();
-      
+
       if (!res.ok) {
-        throw new Error(data.error || `Server error: ${res.status}`);
+        const serverMsg = data?.details || data?.error || `Server error: ${res.status}`;
+        setError(serverMsg);
+        throw new Error(serverMsg);
       }
-      
+
       setMessages([...newMessages, { role: 'model', content: data.text }]);
     } catch (e) {
       console.error('Assistant error:', e);

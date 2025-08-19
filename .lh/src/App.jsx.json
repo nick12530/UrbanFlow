@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 4,
+            "activePatchIndex": 5,
             "patches": [
                 {
                     "date": 1752166996960,
@@ -24,6 +24,10 @@
                 {
                     "date": 1752175860227,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,8 +3,9 @@\n import Transport from './pages/Transport'\n import Food from './pages/Food'\n import Navbar from './components/Navbar'\n \n+\n function App() {\n   return (\n     <Router>\n       <Navbar />\n"
+                },
+                {
+                    "date": 1755584234116,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,21 +1,37 @@\n-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'\n-import Home from './pages/Home'\n-import Transport from './pages/Transport'\n-import Food from './pages/Food'\n-import Navbar from './components/Navbar'\n-\n-\n-function App() {\n-  return (\n-    <Router>\n-      <Navbar />\n-      <Routes>\n-        <Route path=\"/\" element={<Home />} />\n-        <Route path=\"/transport\" element={<Transport />} />\n-        <Route path=\"/food\" element={<Food />} />\n-      </Routes>\n-    </Router>\n-  )\n-}\n-\n+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'\r\n+import Home from './pages/Home'\r\n+import Transport from './pages/Transport'\r\n+import Food from './pages/Food'\r\n+import Navbar from './components/Navbar'\r\n+import Success from './pages/Success'\r\n+import Assistant from './pages/Assistant'\r\n+import Login from './pages/Login'\r\n+import { useAuth } from './context/AuthContext'\r\n+\r\n+function RequireAuth({ children }) {\r\n+  const { user, loading } = useAuth();\r\n+  const location = useLocation();\r\n+  if (loading) return null;\r\n+  if (!user) return <Navigate to=\"/login\" replace state={{ from: location.pathname }} />\r\n+  return children;\r\n+}\r\n+\r\n+function App() {\r\n+  return (\r\n+    <Router>\r\n+      <Navbar />\r\n+      <Routes>\r\n+        <Route path=\"/\" element={<Home />} />\r\n+        <Route path=\"/transport\" element={<RequireAuth><Transport /></RequireAuth>} />\r\n+        <Route path=\"/food\" element={<RequireAuth><Food /></RequireAuth>} />\r\n+        <Route path=\"/success\" element={<Success />} />\r\n+        <Route path=\"/assistant\" element={<Assistant />} />\r\n+        <Route path=\"/login\" element={<Login />} />\r\n+        {/* Add a catch-all route for better UX */}\r\n+        <Route path=\"*\" element={<Navigate to=\"/\" replace />} />\r\n+      </Routes>\r\n+    </Router>\r\n+  )\r\n+}\r\n+\r\n export default App\n\\ No newline at end of file\n"
                 }
             ],
             "date": 1752166996960,
