@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 4,
+            "activePatchIndex": 5,
             "patches": [
                 {
                     "date": 1755193208123,
@@ -24,6 +24,10 @@
                 {
                     "date": 1755584925795,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -188,10 +188,15 @@\n     const text = response.text();\r\n \r\n     return res.json({ text });\r\n   } catch (err) {\r\n-    console.error('Gemini chat error', err.message, err.response?.data || '');\r\n-    return res.status(500).json({ error: 'Failed to generate response', details: err.response?.data || err.message });\r\n+    const axiosData = err.response?.data;\r\n+    console.error('Gemini chat error', err.message, axiosData || '');\r\n+    return res.status(500).json({\r\n+      error: 'Failed to generate response',\r\n+      details: typeof axiosData === 'string' ? axiosData : (axiosData?.error || err.message),\r\n+      code: err.response?.status || undefined\r\n+    });\r\n   }\r\n });\r\n \r\n // Debug endpoint to check environment variables\r\n"
+                },
+                {
+                    "date": 1755807602230,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -61,8 +61,15 @@\n }\r\n \r\n app.post('/api/pesapal/order', async (req, res) => {\r\n   try {\r\n+    // Log the raw request for debugging\r\n+    console.log('Payment request received:', {\r\n+      body: req.body,\r\n+      headers: req.headers['content-type'],\r\n+      method: req.method\r\n+    });\r\n+    \r\n     const { amount, currency = 'KES', description = 'Order Payment', customer = {}, restaurantName } = req.body || {};\r\n     if (!amount || Number(amount) <= 0) {\r\n       return res.status(400).json({ error: 'Invalid amount' });\r\n     }\r\n"
                 }
             ],
             "date": 1755193208122,

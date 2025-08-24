@@ -16,10 +16,13 @@ function RequireAuth({ children }) {
   return children;
 }
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+  
   return (
-    <Router>
-      <Navbar />
+    <>
+      {!isLoginPage && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/transport" element={<RequireAuth><Transport /></RequireAuth>} />
@@ -30,6 +33,14 @@ function App() {
         {/* Add a catch-all route for better UX */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   )
 }

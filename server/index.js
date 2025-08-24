@@ -62,6 +62,13 @@ async function fetchPesapalToken() {
 
 app.post('/api/pesapal/order', async (req, res) => {
   try {
+    // Log the raw request for debugging
+    console.log('Payment request received:', {
+      body: req.body,
+      headers: req.headers['content-type'],
+      method: req.method
+    });
+    
     const { amount, currency = 'KES', description = 'Order Payment', customer = {}, restaurantName } = req.body || {};
     if (!amount || Number(amount) <= 0) {
       return res.status(400).json({ error: 'Invalid amount' });

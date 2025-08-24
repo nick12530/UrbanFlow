@@ -1,201 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// UrbanBuddy AI Assistant Component
-const UrbanBuddy = ({ darkMode, onChatOpen }) => {
-  const [position, setPosition] = useState({ x: 20, y: 50 });
-  const [expression, setExpression] = useState('😊');
-  const [direction, setDirection] = useState(1);
-  const [costume, setCostume] = useState(null);
-  const [isActive, setIsActive] = useState(false);
-  const botRef = useRef(null);
-  const animationRef = useRef(null);
-  const lastInteractionTime = useRef(Date.now());
-
-  // Seasonal costumes
-  useEffect(() => {
-    const today = new Date();
-    const month = today.getMonth() + 1;
-    
-    if (month === 12) setCostume('🎄');
-    else if (month === 10) setCostume('🎃');
-    else if (month === 2) setCostume('💝');
-    else if (month === 4) setCostume('🌸');
-    else setCostume(null);
-  }, []);
-
-  // Make the bot wander with more dynamic movement
-  useEffect(() => {
-    const moveInterval = setInterval(() => {
-      setPosition(prev => {
-        const now = Date.now();
-        const timeSinceLastInteraction = now - lastInteractionTime.current;
-        
-        // More active movement right after interaction
-        const speedMultiplier = timeSinceLastInteraction < 5000 ? 2 : 1;
-        
-        let newX = prev.x + (3 * direction * speedMultiplier);
-        let newY = prev.y + (Math.random() * 6 - 3);
-        
-        // Bounce off edges
-        if (newX > window.innerWidth - 80) {
-          setDirection(-1);
-          triggerAnimation('spin');
-        }
-        if (newX < 20) {
-          setDirection(1);
-          triggerAnimation('spin');
-        }
-        if (newY < 20) newY = 20;
-        if (newY > window.innerHeight - 100) newY = window.innerHeight - 100;
-        
-        return { x: newX, y: newY };
-      });
-    }, 100);
-
-    return () => clearInterval(moveInterval);
-  }, [direction]);
-
-  // Change expressions randomly with more variety
-  useEffect(() => {
-    const expressions = ['😊', '🤔', '😮', '😎', '👋', '🤖', '✨', '🌟'];
-    const expressionInterval = setInterval(() => {
-      if (!isActive) {
-        setExpression(expressions[Math.floor(Math.random() * expressions.length)]);
-        // Random animations when idle
-        if (Math.random() > 0.8) {
-          triggerAnimation(['bounce', 'spin', 'wobble'][Math.floor(Math.random() * 3)]);
-        }
-      }
-    }, 3000);
-    return () => clearInterval(expressionInterval);
-  }, [isActive]);
-
-  const triggerAnimation = (type) => {
-    if (animationRef.current) {
-      clearTimeout(animationRef.current);
-    }
-    
-    const botElement = botRef.current;
-    if (!botElement) return;
-    
-    botElement.style.animation = 'none';
-    void botElement.offsetWidth; // Trigger reflow
-    
-    switch(type) {
-      case 'spin':
-        botElement.style.animation = 'spin 1s ease';
-        break;
-      case 'bounce':
-        botElement.style.animation = 'bounce 0.5s ease';
-        break;
-      case 'wobble':
-        botElement.style.animation = 'wobble 0.8s ease';
-        break;
-      default:
-        botElement.style.animation = '';
-    }
-    
-    animationRef.current = setTimeout(() => {
-      if (botElement) botElement.style.animation = '';
-    }, 1000);
-  };
-
-  const handleClick = () => {
-    lastInteractionTime.current = Date.now();
-    setIsActive(true);
-    triggerAnimation('bounce');
-    setExpression('💡');
-    
-    // Trigger chat opening in parent component
-    onChatOpen();
-    
-    // Return to normal after a delay
-    setTimeout(() => {
-      setIsActive(false);
-    }, 3000);
-  };
-
-  // Custom animations
-  const animations = `
-    @keyframes spin {
-      0% { transform: rotate(0deg) scaleX(${direction}); }
-      100% { transform: rotate(360deg) scaleX(${direction}); }
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0) scaleX(${direction}); }
-      50% { transform: translateY(-20px) scaleX(${direction}); }
-    }
-    @keyframes wobble {
-      0%, 100% { transform: rotate(0deg) scaleX(${direction}); }
-      25% { transform: rotate(5deg) scaleX(${direction}); }
-      75% { transform: rotate(-5deg) scaleX(${direction}); }
-    }
-    @keyframes float {
-      0% { transform: translateY(0px) scaleX(${direction}); }
-      50% { transform: translateY(-10px) scaleX(${direction}); }
-      100% { transform: translateY(0px) scaleX(${direction}); }
-    }
-  `;
-
-  return (
-    <>
-      <style>{animations}</style>
-      <div 
-        ref={botRef}
-        onClick={handleClick}
-        style={{
-          position: 'fixed',
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          fontSize: '2.5rem',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease',
-          transform: `scaleX(${direction})`,
-          zIndex: 100,
-          filter: darkMode 
-            ? 'drop-shadow(0 0 8px rgba(255,255,255,0.7))' 
-            : 'drop-shadow(0 0 8px rgba(0,0,0,0.3))',
-          userSelect: 'none',
-          animation: 'float 4s ease-in-out infinite'
-        }}
-      >
-        <div style={{ 
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}>
-          {/* Bot icon with costume */}
-          <div style={{
-            position: 'relative',
-            width: '60px',
-            height: '60px',
-            backgroundColor: darkMode ? '#4a5568' : '#3b82f6',
-            borderRadius: '50%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            color: 'white'
-          }}>
-            <span style={{ fontSize: '1.8rem' }}>{expression}</span>
-            {costume && (
-              <span style={{
-                position: 'absolute',
-                top: '-15px',
-                right: '-10px',
-                fontSize: '1.5rem',
-                transform: 'rotate(15deg)'
-              }}>
-                {costume}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
+// UrbanBuddy AI Assistant Component - REMOVED
 
 // Chat Modal Component with Functional API Connection
 const ChatModal = ({ darkMode, onClose }) => {
@@ -705,30 +511,14 @@ const EmergencyServices = ({ darkMode }) => {
 
   return (
     <div style={{
-      background: darkMode 
-        ? 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)' 
-        : 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-      borderRadius: '16px',
+      background: darkMode ? '#1f2937' : '#ffffff',
+      borderRadius: '12px',
       padding: '1.5rem',
       margin: '1rem 0',
-      boxShadow: '0 8px 32px rgba(220, 38, 38, 0.15)',
-      border: darkMode ? '1px solid #dc2626' : '1px solid #fecaca',
-      position: 'relative',
-      overflow: 'hidden'
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      border: darkMode ? '1px solid #374151' : '1px solid #e5e7eb',
+      position: 'relative'
     }}>
-      {/* Emergency background pattern */}
-      <div style={{
-        position: 'absolute',
-        top: '-50%',
-        right: '-50%',
-        width: '200%',
-        height: '200%',
-        background: darkMode 
-          ? 'radial-gradient(circle, rgba(220, 38, 38, 0.1) 0%, transparent 70%)'
-          : 'radial-gradient(circle, rgba(220, 38, 38, 0.05) 0%, transparent 70%)',
-        animation: 'pulse 2s ease-in-out infinite'
-      }}></div>
-
       <div style={{ position: 'relative', zIndex: 2 }}>
         {/* Header */}
         <div style={{ 
@@ -738,15 +528,14 @@ const EmergencyServices = ({ darkMode }) => {
           marginBottom: '1.5rem'
         }}>
           <div style={{
-            fontSize: '1.5rem',
-            animation: 'pulse 1.5s ease-in-out infinite'
+            fontSize: '1.5rem'
           }}>
             🚨
           </div>
           <div>
             <h3 style={{ 
               margin: 0,
-              color: darkMode ? '#fecaca' : '#991b1b',
+              color: darkMode ? '#e5e7eb' : '#1f2937',
               fontSize: '1.2rem',
               fontWeight: '700'
             }}>
@@ -755,7 +544,7 @@ const EmergencyServices = ({ darkMode }) => {
             <p style={{
               margin: '0.25rem 0 0',
               fontSize: '0.8rem',
-              color: darkMode ? '#fca5a5' : '#dc2626',
+              color: darkMode ? '#9ca3af' : '#6b7280',
               fontWeight: '500'
             }}>
               Tap to call emergency services
@@ -779,36 +568,27 @@ const EmergencyServices = ({ darkMode }) => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '1rem',
-                borderRadius: '12px',
-                background: darkMode 
-                  ? 'rgba(220, 38, 38, 0.2)' 
-                  : 'rgba(255, 255, 255, 0.8)',
-                color: darkMode ? '#fecaca' : '#991b1b',
+                borderRadius: '8px',
+                background: darkMode ? '#374151' : '#f9fafb',
+                color: darkMode ? '#e5e7eb' : '#1f2937',
                 textDecoration: 'none',
-                transition: 'all 0.3s ease',
-                border: darkMode 
-                  ? '1px solid rgba(220, 38, 38, 0.3)' 
-                  : '1px solid rgba(220, 38, 38, 0.1)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                position: 'relative',
-                overflow: 'hidden'
+                transition: 'all 0.2s ease',
+                border: darkMode ? '1px solid #4b5563' : '1px solid #e5e7eb',
+                position: 'relative'
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-4px) scale(1.02)';
-                e.target.style.boxShadow = '0 12px 24px rgba(220, 38, 38, 0.2)';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.transform = 'translateY(0)';
                 e.target.style.boxShadow = 'none';
               }}
             >
-              {/* Service icon with glow effect */}
+              {/* Service icon */}
               <div style={{
                 fontSize: '2rem',
-                marginBottom: '0.5rem',
-                filter: `drop-shadow(0 0 8px ${service.color})`,
-                animation: 'float 2s ease-in-out infinite'
+                marginBottom: '0.5rem'
               }}>
                 {service.icon}
               </div>
@@ -837,7 +617,7 @@ const EmergencyServices = ({ darkMode }) => {
               <span style={{
                 fontSize: '0.7rem',
                 textAlign: 'center',
-                color: darkMode ? '#fca5a5' : '#dc2626',
+                color: darkMode ? '#9ca3af' : '#6b7280',
                 fontWeight: '500',
                 lineHeight: 1.2
               }}>
@@ -847,14 +627,12 @@ const EmergencyServices = ({ darkMode }) => {
               {/* Response time */}
               <span style={{
                 fontSize: '0.65rem',
-                color: darkMode ? '#fca5a5' : '#dc2626',
+                color: darkMode ? '#9ca3af' : '#6b7280',
                 fontWeight: '600',
                 marginTop: '0.25rem',
-                backgroundColor: darkMode 
-                  ? 'rgba(220, 38, 38, 0.2)' 
-                  : 'rgba(220, 38, 38, 0.1)',
+                backgroundColor: darkMode ? '#4b5563' : '#e5e7eb',
                 padding: '0.2rem 0.4rem',
-                borderRadius: '8px'
+                borderRadius: '6px'
               }}>
                 {service.responseTime}
               </span>
@@ -866,19 +644,15 @@ const EmergencyServices = ({ darkMode }) => {
         <div style={{
           marginTop: '1rem',
           padding: '0.75rem',
-          backgroundColor: darkMode 
-            ? 'rgba(220, 38, 38, 0.2)' 
-            : 'rgba(255, 255, 255, 0.9)',
+          backgroundColor: darkMode ? '#374151' : '#fef2f2',
           borderRadius: '8px',
-          border: darkMode 
-            ? '1px solid rgba(220, 38, 38, 0.3)' 
-            : '1px solid rgba(220, 38, 38, 0.2)',
+          border: darkMode ? '1px solid #4b5563' : '1px solid #fecaca',
           textAlign: 'center'
         }}>
           <p style={{
             margin: 0,
             fontSize: '0.75rem',
-            color: darkMode ? '#fca5a5' : '#991b1b',
+            color: darkMode ? '#9ca3af' : '#991b1b',
             fontWeight: '600'
           }}>
             ⚠️ For life-threatening emergencies, call 999 immediately
@@ -1566,7 +1340,7 @@ export default function Home() {
             </button>
           </form>
         </div>
-        <UrbanBuddy darkMode={darkMode} onChatOpen={toggleChat} />
+        {/* UrbanBuddy floating bot removed */}
       </section>
 
       {/* Services Grid */}

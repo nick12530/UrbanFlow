@@ -32,8 +32,14 @@ const Checkout = ({ cartItems, onClose, restaurant }) => {
   const [pesapalUrl, setPesapalUrl] = useState('');
   const [orderTrackingId, setOrderTrackingId] = useState('');
 
-  // Determine API base (use same-origin by default, override in local dev with VITE_API_BASE_URL)
-  const apiBase = import.meta.env?.VITE_API_BASE_URL || '';
+  // Determine API base
+  // Prefer VITE_API_BASE_URL; fall back to localhost:3001 in Vite dev if unset
+  const apiBase = (
+    import.meta.env?.VITE_API_BASE_URL ||
+    ((location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ? 'http://localhost:3001'
+      : '')
+  );
 
   // Handle payment submission
   const handlePayment = async (e) => {
@@ -66,7 +72,8 @@ const Checkout = ({ cartItems, onClose, restaurant }) => {
       }
     } catch (err) {
       console.error(err);
-      alert('Payment failed to initialize. Check server logs.');
+      const serverMsg = err?.response?.data?.error || err?.message || 'Payment failed to initialize.';
+      alert(serverMsg);
     }
   };
 

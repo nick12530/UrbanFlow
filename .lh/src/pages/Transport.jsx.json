@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 68,
+            "activePatchIndex": 69,
             "patches": [
                 {
                     "date": 1752166212536,
@@ -280,6 +280,10 @@
                 {
                     "date": 1755586239796,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1651,9 +1651,8 @@\n \r\n   return (\r\n     <div className=\"urban-flow-container\">\r\n       <style>{getStyles(theme)}</style>\r\n-      <FitBounds services={[]} selected={null} />\r\n       \r\n       {/* Header */}\r\n       <header className=\"header\">\r\n         <h1 className=\"app-title\">\r\n"
+                },
+                {
+                    "date": 1755710491218,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1402,10 +1402,10 @@\n               window.open(url, '_blank');\r\n             }\r\n           }}\r\n         >\r\n-          <MdDirections size={18} /> Get Directions\r\n-        </button>\r\n+        <MdDirections size={18} /> Get Directions\r\n+      </button>\r\n         <button\r\n           className=\"action-btn secondary-action\"\r\n           onClick={() => onAddToItinerary?.(service)}\r\n           aria-label=\"Add to itinerary\"\r\n"
                 }
             ],
             "date": 1752166212536,

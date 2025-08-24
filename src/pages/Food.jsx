@@ -202,9 +202,9 @@ const Food = () => {
       features: ['All-You-Can-Eat', 'Live Grill', 'Signature Dawa Cocktails'],
       menu: [
         {
-          category: 'Signature Meats',
-          items: [
-            { name: 'Beast of a Feast Platter', price: 'Ksh 2200', popular: true },
+        category: 'Signature Meats',
+        items: [
+          { name: 'Beast of a Feast Platter', price: 'Ksh 2200', popular: true },
             { name: 'Crocodile Skewers', price: 'Ksh 1800' },
             { name: 'Pork Ribs', price: 'Ksh 1600' },
             { name: 'Lamb Chops', price: 'Ksh 1750' }
